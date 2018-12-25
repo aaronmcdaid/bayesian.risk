@@ -37,11 +37,10 @@ def standard_antirisk(x: float) -> float:
 
 @typechecked
 def risk(x: float, loc: float, scale: float) -> float:
-    assert scale == 1 or loc == 0
     """
         given a standard normal,
             Y ~ N(loc,scale^2)
         this returns
             mean(min(Y,x))
     """
-    return scale * (loc + standard_risk((x - loc)/scale))
+    return loc + scale * standard_risk((x - loc)/scale)

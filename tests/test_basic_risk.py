@@ -51,3 +51,6 @@ def test_risk():
     assert risk(-2, 0, 2) == approx(2* -1.083315470)
     assert risk(3, 0, 3) == approx(3* -0.08331547)
     assert risk(-3, 0, 3) == approx(3* -1.083315470)
+
+    # scaled and logged
+    assert risk(103, 100, 3) == approx(100 + 3 * -0.08331547)
