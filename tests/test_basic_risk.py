@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from bayesianAB.risk import standard_risk
+from bayesianAB.risk import standard_risk, standard_antirisk
 import numpy as np
 
 
@@ -28,3 +28,10 @@ def test_standard_risk__symmetry():
     # There is a symmetry property
     assert standard_risk(2) - standard_risk(-2) == approx(2)
     assert standard_risk(3) - standard_risk(-3) == approx(3)
+
+
+def test_standard_antirisk():
+    assert standard_antirisk(-100) == approx(0)
+    assert standard_antirisk(0) == approx(0.3989422)
+    assert standard_antirisk(1) == approx(1.0833154705876864)
+    assert standard_antirisk(100) == approx(100)

@@ -21,3 +21,15 @@ def standard_risk(x: float) -> float:
         return p * t + (1 - p) * x
     else:
         return x + standard_risk(-x)
+
+
+@typechecked
+def standard_antirisk(x: float) -> float:
+    """
+        The opposite of 'standard_risk', i.e.
+        given a standard normal,
+            Y ~ N(0,1)
+        this returns
+            mean(max(Y,x))
+    """
+    return -standard_risk(-x)
