@@ -38,7 +38,16 @@ def test_standard_antirisk():
 
 
 def test_risk():
+    # first, just confirm the standard normal case
     assert risk(1, 0, 1) == approx(-0.08331547)
     assert risk(-1, 0, 1) == approx(-1.083315470)
+
+    # then, shifted by a constant
     assert risk(6, 5, 1) == approx(5-0.08331547)
-    assert risk( 4, 5, 1) == approx(5-1.083315470)
+    assert risk(4, 5, 1) == approx(5-1.083315470)
+
+    # scaled
+    assert risk(2, 0, 2) == approx(2* -0.08331547)
+    assert risk(-2, 0, 2) == approx(2* -1.083315470)
+    assert risk(3, 0, 3) == approx(3* -0.08331547)
+    assert risk(-3, 0, 3) == approx(3* -1.083315470)
