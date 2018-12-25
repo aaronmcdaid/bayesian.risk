@@ -36,7 +36,7 @@ def standard_antirisk(x: float) -> float:
 
 
 @typechecked
-def risk(x: float, loc: float, scale: float) -> float:
+def risk(x: float, loc: float = 0, scale: float = 1) -> float:
     """
         given a standard normal,
             Y ~ N(loc,scale^2)

@@ -55,3 +55,7 @@ def test_risk():
 
     # scaled and translated
     assert risk(100 + 3, 100, 3) == approx(100 + 3 * -0.08331547)
+
+def test_risk_default_params():
+    # check the default params work
+    assert risk(7, 0, 1) == risk(7)
