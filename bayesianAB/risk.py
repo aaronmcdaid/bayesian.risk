@@ -19,5 +19,4 @@ def standard_risk(x: float):
     else:
         t = truncnorm.mean(VERY_NEGATIVE, x)
         p = norm.cdf(x)
-        print('{}\t{}\t{}'.format(x, truncnorm.mean(VERY_NEGATIVE, x), p))
         return p*t + (1-p) * x
