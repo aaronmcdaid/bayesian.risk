@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from bayesianAB.risk import standard_risk, standard_antirisk
+from bayesianAB.risk import standard_risk, standard_antirisk, risk
 import numpy as np
 
 
@@ -35,3 +35,10 @@ def test_standard_antirisk():
     assert standard_antirisk(0) == approx(0.3989422)
     assert standard_antirisk(1) == approx(1.0833154705876864)
     assert standard_antirisk(100) == approx(100)
+
+
+def test_risk():
+    assert risk(1, 0, 1) == approx(-0.08331547)
+    assert risk(-1, 0, 1) == approx(-1.083315470)
+    assert risk(6, 5, 1) == approx(5-0.08331547)
+    assert risk( 4, 5, 1) == approx(5-1.083315470)
