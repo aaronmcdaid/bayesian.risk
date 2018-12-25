@@ -3,6 +3,7 @@ from pytest import approx
 from bayesianAB.risk import standard_risk
 import numpy as np
 
+
 def test_standard_risk():
     # For large 'x', there is essentially no clipping,
     # and therefore it's basically a standard normal
@@ -22,7 +23,8 @@ def test_standard_risk():
     assert standard_risk(-7) == approx(-7)
     assert standard_risk(-100) == approx(-100)
 
+
 def test_standard_risk__symmetry():
     # There is a symmetry property
-    assert standard_risk( 2) - standard_risk(-2) == approx(2)
-    assert standard_risk( 3) - standard_risk(-3) == approx(3)
+    assert standard_risk(2) - standard_risk(-2) == approx(2)
+    assert standard_risk(3) - standard_risk(-3) == approx(3)

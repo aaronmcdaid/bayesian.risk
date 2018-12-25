@@ -2,6 +2,7 @@ from typeguard import typechecked
 from scipy.stats import truncnorm, norm
 import numpy as np
 
+
 @typechecked
 def standard_risk(x: float) -> float:
     """
@@ -17,6 +18,6 @@ def standard_risk(x: float) -> float:
         # for values of 'x' less then -100
         t = truncnorm.mean(-100, x)
         p = norm.cdf(x)
-        return p*t + (1-p) * x
+        return p * t + (1 - p) * x
     else:
         return x + standard_risk(-x)
