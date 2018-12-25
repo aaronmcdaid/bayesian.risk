@@ -3,7 +3,7 @@ from scipy.stats import truncnorm, norm
 import numpy as np
 
 @typechecked
-def standard_risk(x: float):
+def standard_risk(x: float) -> float:
     """
         given a standard normal,
             Y ~ N(0,1)
