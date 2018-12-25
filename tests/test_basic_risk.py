@@ -26,4 +26,3 @@ def test_standard_risk__symmetry():
     # There is a symmetry property
     assert standard_risk( 2) - standard_risk(-2) == approx(2)
     assert standard_risk( 3) - standard_risk(-3) == approx(3)
-

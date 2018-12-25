@@ -10,13 +10,13 @@ def standard_risk(x: float):
         this returns
             mean(min(Y,x))
     """
-    # scipy.stats.truncnorm doesn't like very negative bounds,
-    # so we clip 'x' so that it's not so extreme
-    VERY_NEGATIVE = -8
-
-    if x <= VERY_NEGATIVE:
-        return x
-    else:
-        t = truncnorm.mean(VERY_NEGATIVE, x)
+    if x >= 0:
+        # These three lines could be used for both positive
+        # and negative values of 'x', but we use this if
+        # in order to avoid having to use a special case
+        # for values of 'x' less then -100
+        t = truncnorm.mean(-100, x)
         p = norm.cdf(x)
         return p*t + (1-p) * x
+    else:
+        return x + standard_risk(-x)
