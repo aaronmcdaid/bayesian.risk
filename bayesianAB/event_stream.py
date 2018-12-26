@@ -79,8 +79,8 @@ class ABtest:
                         true_diff: float,
                         sd: float,
                         weight: float,
-                        steps: int,
-                        seed: int,
+                        seed: int = 1337,
+                        steps: int = 0,
                         ):
         # For the typical case with just two variants and the same standard deviation
         x = [
