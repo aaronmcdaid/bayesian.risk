@@ -73,6 +73,24 @@ class ABtest:
         args = [list(z) for z in zip(*lop)]
         return cls(*args, seed)
 
+    @classmethod
+    @typechecked
+    def from_simple_args(cls,
+                        true_diff: float,
+                        sd: float,
+                        weight: float,
+                        steps: int,
+                        seed: int,
+                        ):
+        # For the typical case with just two variants and the same standard deviation
+        x = [
+            (weight, gen_normals(0, sd, seed + 100000)),
+            (1-weight, gen_normals(true_diff, sd, seed + 200000)),
+        ]
+        ab = ABtest.from_list_of_pairs(x, seed)
+        ab.advance(steps = steps)
+        return ab
+
     def advance(self, steps: int = 1):
         for _ in range(steps):
             variant = self._rng.choice(len(self._weights), p=self._weights)

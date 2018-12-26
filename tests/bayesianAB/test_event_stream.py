@@ -60,3 +60,14 @@ def test_ABtest_at_least_two():
     # each variant has two observations in it already
     ns, _, _ = ab.get_ns_means_sddevs()
     assert ns == [2, 2]
+
+
+def test_ABtest_simple():
+    # Generate with a few different means and stdevs,
+    # and verify the results are approximately as
+    # expected.
+    ab = ABtest.from_simple_args(true_diff=3, sd=2, weight=0.3, steps=1000, seed=1337)
+    ns, means, stdevs = ab.get_ns_means_sddevs()
+    assert ns == [306, 694]
+    assert means[1] - means[0] == approx(3, abs=0.1)
+    assert stdevs == approx([2, 2], abs=0.1)
