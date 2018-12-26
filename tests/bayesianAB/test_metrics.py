@@ -25,7 +25,7 @@ def test_difference_of_means__as_a_likelihood_function():
         ab = ABtest.from_list_of_pairs(params, seed)
         ab.advance(steps = 100)
 
-        m, s = bm.get_difference_of_means__as_a_likelihood_function(ab)
+        m, s = bm.get_difference_of_means__and_its_sd(ab)
         diffs.append(m)
         sds.append(s)
 

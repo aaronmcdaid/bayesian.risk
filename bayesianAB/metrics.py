@@ -2,7 +2,7 @@ from typeguard import typechecked
 from bayesianAB.event_stream import ABtest
 import numpy as np
 
-def get_difference_of_means__as_a_likelihood_function(ab: ABtest):
+def get_difference_of_means__and_its_sd(ab: ABtest):
     assert ab.get_number_of_variants() == 2
     (n1, n2), (m1, m2), (s1, s2) = ab.get_ns_means_sddevs()
     assert n1 > 1
