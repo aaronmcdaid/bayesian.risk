@@ -39,7 +39,7 @@ def _get_precomputed_array_of_standard_risk() -> np.array:
     global _precomputed_array_of_standard_risk
     STEP = 0.001
     if _precomputed_array_of_standard_risk is None:
-        xs = list(np.arange(0, 10+STEP/2, STEP))
+        xs = list(np.arange(0, 10 + STEP / 2, STEP))
         _precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
     return _precomputed_array_of_standard_risk
 
@@ -57,7 +57,7 @@ def fast_standard_risk(x: float):
     # pre[0] corresponds to standard_risk(x=0)
     # pre[n-1] corresponds to standard_risk(x=10)
 
-    index = int(round((n-1) * x / 10))
+    index = int(round((n - 1) * x / 10))
     # If 'x' is greater than 10, then pull the index down
-    index = min(n-1, index)
+    index = min(n - 1, index)
     return pre[index]

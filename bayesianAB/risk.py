@@ -10,4 +10,4 @@ def risk(x: float, loc: float = 0, scale: float = 1) -> float:
         this returns
             mean(min(Y,x))
     """
-    return loc + scale * standard_risk((x - loc)/scale)
+    return loc + scale * standard_risk((x - loc) / scale)
