@@ -16,12 +16,16 @@ def test_risk__translated():
     assert risk(5 + 1, 5, 1) == approx(5 - 0.08331547)
     assert risk(5 - 1, 5, 1) == approx(5 - 1.083315470)
 
+
+def test_risk__scaled_not_translated():
     # Back to location zero, but scaling instead
     assert risk(2, 0, 2) == approx(2 * -0.08331547)
     assert risk(-2, 0, 2) == approx(2 * -1.083315470)
     assert risk(3, 0, 3) == approx(3 * -0.08331547)
     assert risk(-3, 0, 3) == approx(3 * -1.083315470)
 
+
+def test_risk__scaled_and_translated():
     # scaled and translated
     assert risk(100 + 3, 100, 3) == approx(100 + 3 * -0.08331547)
 
