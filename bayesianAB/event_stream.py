@@ -13,14 +13,32 @@ def gen_normals(loc: float, scale: float, seed: int):
 
 
 class TrackOneStream:
-    def __init__(self, g):
-        self._g = g
-        self._n = 0
+    def __init__(self, generator):
+        self._g = generator
         self._sum = 0.0
         self._sum_squares = 0.0
+        self._n = 0
+        self._requested_n = 0
+
+        # We force two elements in, so that we can get a
+        # Bessel-corrected variance estimate.
+        # This increases self._n, but not self._requested_n
+        self._advance_impl()
+        self._advance_impl()
+        assert 2, 0 == (self._n, self._requested_n)
 
     def advance(self, steps: int = 1):
-        for _ in range(steps):
+        # Increase the requested_n by 'steps'.
+        # Then, actually call _advance_impl if needed.
+        #
+        # We need this strange design to ensure that the
+        # first two calls to 'advance' are ignored.
+        assert self._n == max(2, self._requested_n)
+        self._requested_n += steps
+        while self._n < self._requested_n:
+            self._advance_impl()
+
+    def _advance_impl(self):
             x = next(self._g)
             self._n += 1
             self._sum += x

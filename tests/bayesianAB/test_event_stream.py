@@ -48,3 +48,15 @@ def test_ABtest_means_and_sddevs():
     _, means, stdevs = ab.get_ns_means_sddevs()
     assert means == approx([0, 3, 8], abs=0.1)
     assert stdevs == approx([1, 2, 3], abs=0.1)
+
+
+def test_ABtest_at_least_two():
+    x = [
+        (3, gen_normals(0, 1, 1337)),
+        (7, gen_normals(0, 1, 1337)),
+    ]
+    ab = ABtest.from_list_of_pairs(x, 1337)
+    # Even though 'advance' isn't called here, we expect that
+    # each variant has two observations in it already
+    ns, _, _ = ab.get_ns_means_sddevs()
+    assert ns == [2, 2]
