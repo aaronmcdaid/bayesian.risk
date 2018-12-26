@@ -3,6 +3,7 @@ import itertools as it
 import numpy as np
 from pytest import approx
 
+
 def test_gen_normals():
     g = gen_normals(5, 3, 1337)
     x = list(it.islice(g, 1000))
@@ -17,16 +18,17 @@ def test_TrackOneStream():
             for x in range(100000):
                 tos.advance()
             m, s = tos.get_mean_and_sddev()
-            assert 0.99 < s/stdev < 1.01
+            assert 0.99 < s / stdev < 1.01
             assert -0.01 < (mean - m) / stdev < 0.01
 
 
 def test_ABtest_weights():
     # Generate with a 30/70 split, and check that is
     # the observed split.
-    x = [   (3, gen_normals(0, 1, 1337)),
-            (7, gen_normals(0, 1, 1337)),
-        ]
+    x = [
+        (3, gen_normals(0, 1, 1337)),
+        (7, gen_normals(0, 1, 1337)),
+    ]
     ab = ABtest.from_list_of_pairs(x, 1337)
     for i in range(1000):
         ab.advance()
@@ -38,10 +40,11 @@ def test_ABtest_means_and_sddevs():
     # Generate with a few different means and stdevs,
     # and verify the results are approximately as
     # expected.
-    x = [   (3, gen_normals(0, 1, 1337)),
-            (7, gen_normals(3, 2, 1337)),
-            (7, gen_normals(8, 3, 1337)),
-        ]
+    x = [
+        (3, gen_normals(0, 1, 1337)),
+        (7, gen_normals(3, 2, 1337)),
+        (7, gen_normals(8, 3, 1337)),
+    ]
     ab = ABtest.from_list_of_pairs(x, 1337)
     for i in range(1000):
         ab.advance()

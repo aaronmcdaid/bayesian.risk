@@ -1,6 +1,7 @@
 from typeguard import typechecked, List, Any, Tuple
 import numpy as np
 
+
 @typechecked
 def gen_normals(loc: float, scale: float, seed: int):
     rng = np.random.RandomState()
@@ -12,7 +13,6 @@ def gen_normals(loc: float, scale: float, seed: int):
 
 
 class TrackOneStream:
-
     def __init__(self, g):
         self._g = g
         self._n = 0
@@ -23,7 +23,7 @@ class TrackOneStream:
         x = next(self._g)
         self._n += 1
         self._sum += x
-        self._sum_squares += x*x
+        self._sum_squares += x * x
 
     def get_n_mean_and_sddev(self):
         n = self._n
