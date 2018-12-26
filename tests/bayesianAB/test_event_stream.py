@@ -32,3 +32,19 @@ def test_ABtest_weights():
         ab.advance()
     ns, _, _ = ab.get_ns_means_sddevs()
     assert ns == [306, 694]
+
+
+def test_ABtest_means_and_sddevs():
+    # Generate with a few different means and stdevs,
+    # and verify the results are approximately as
+    # expected.
+    x = [   (3, gen_normals(0, 1, 1337)),
+            (7, gen_normals(3, 2, 1337)),
+            (7, gen_normals(8, 3, 1337)),
+        ]
+    ab = ABtest.from_list_of_pairs(x, 1337)
+    for i in range(1000):
+        ab.advance()
+    _, means, stdevs = ab.get_ns_means_sddevs()
+    assert means == approx([0, 3, 8], abs=0.1)
+    assert stdevs == approx([1, 2, 3], abs=0.1)
