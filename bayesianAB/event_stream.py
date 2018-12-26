@@ -38,20 +38,20 @@ class TrackOneStream:
 
 class ABtest:
     @typechecked
-    def __init__(self, weights: List[float], generators: List[Any]):
+    def __init__(self, weights: List[float], generators: List[Any], seed: int):
         assert len(generators) == len(weights)
         self._weights = np.array(weights) / sum(weights)
         self._trackers = [TrackOneStream(g) for g in generators]
         self._rng = np.random.RandomState()
-        self._rng.seed(1337)
+        self._rng.seed(seed)
 
     @classmethod
     @typechecked
-    def from_list_of_pairs(cls, lop: List[Tuple[float, Any]]):
+    def from_list_of_pairs(cls, lop: List[Tuple[float, Any]], seed: int):
         # converts a list-of-pairs to a pair-of-lists, and then
         # constructs an ABtest from them.
         args = [list(z) for z in zip(*lop)]
-        return cls(*args)
+        return cls(*args, seed)
 
     def advance(self):
         variant = self._rng.choice(len(self._weights), p=self._weights)

@@ -22,10 +22,12 @@ def test_TrackOneStream():
 
 
 def test_ABtest_weights():
+    # Generate with a 30/70 split, and check that is
+    # the observed split.
     x = [   (3, gen_normals(0, 1, 1337)),
             (7, gen_normals(0, 1, 1337)),
         ]
-    ab = ABtest.from_list_of_pairs(x)
+    ab = ABtest.from_list_of_pairs(x, 1337)
     for i in range(1000):
         ab.advance()
     ns, _, _ = ab.get_ns_means_sddevs()
