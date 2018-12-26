@@ -26,7 +26,7 @@ class TrackOneStream:
         self._sum_squares += x*x
 
     def get_n_mean_and_sddev(self):
-        n = self._sum
+        n = self._n
         m = self._sum / self._n
         v = self._sum_squares / self._n - m**2
         return n, m, np.sqrt(v)
