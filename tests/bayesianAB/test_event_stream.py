@@ -1,4 +1,4 @@
-from bayesianAB.event_stream import gen_normals, TrackOneStream
+from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest
 import itertools as it
 import numpy as np
 from pytest import approx
@@ -19,3 +19,14 @@ def test_TrackOneStream():
             m, s = tos.get_mean_and_sddev()
             assert 0.99 < s/stdev < 1.01
             assert -0.01 < (mean - m) / stdev < 0.01
+
+
+def test_ABtest_weights():
+    x = [   (3, gen_normals(0, 1, 1337)),
+            (7, gen_normals(0, 1, 1337)),
+        ]
+    ab = ABtest.from_list_of_pairs(x)
+    for i in range(1000):
+        ab.advance()
+    ns, _, _ = ab.get_ns_means_sddevs()
+    assert ns == [306, 694]
