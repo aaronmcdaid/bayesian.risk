@@ -23,6 +23,30 @@ def standard_risk(x: float) -> float:
         return x + standard_risk(-x)
 
 
+_precomputed_array_of_standard_risk = None
+
+def _get_precomputed_array_of_standard_risk() -> np.array:
+    global _precomputed_array_of_standard_risk
+    STEP = 0.003
+    if _precomputed_array_of_standard_risk is None:
+        xs = list(np.arange(-10, 10+STEP/2, STEP))
+        _precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
+    return _precomputed_array_of_standard_risk
+
+@typechecked
+def fast_standard_risk(x: float):
+    if x < 0:
+        return x + standard_risk(-x)
+    pre = _get_precomputed_array_of_standard_risk()
+    assert pre.dtype.name == 'float64'
+    n = len(pre)
+    # pre[0] corresponds to standard_risk(-10)
+    # pre[n-1] corresponds to standard_risk(10)
+    index = int(round((n-1) * (x + 10) / 20))
+    index = max(0, index)
+    index = min(n-1, index)
+    return pre[index]
+
 @typechecked
 def standard_antirisk(x: float) -> float:
     """

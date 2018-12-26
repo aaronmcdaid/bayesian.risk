@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from bayesianAB.risk import standard_risk, standard_antirisk, risk
+from bayesianAB.risk import standard_risk, standard_antirisk, risk, fast_standard_risk
 import numpy as np
 
 
@@ -59,3 +59,7 @@ def test_risk():
 def test_risk_default_params():
     # check the default params work
     assert risk(7, 0, 1) == risk(7)
+
+def test_precompute():
+    for x in np.arange(-10.003, 12, 0.003):
+        assert fast_standard_risk(x) == approx(standard_risk(x))
