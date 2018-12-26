@@ -15,8 +15,7 @@ def test_TrackOneStream():
     for mean in [-3, 0, 5]:
         for stdev in [0.1, 1, 10]:
             tos = TrackOneStream(gen_normals(mean, stdev, 1337))
-            for x in range(100000):
-                tos.advance()
+            tos.advance(steps = 100000)
             m, s = tos.get_mean_and_sddev()
             assert 0.99 < s / stdev < 1.01
             assert -0.01 < (mean - m) / stdev < 0.01
@@ -30,8 +29,7 @@ def test_ABtest_weights():
         (7, gen_normals(0, 1, 1337)),
     ]
     ab = ABtest.from_list_of_pairs(x, 1337)
-    for i in range(1000):
-        ab.advance()
+    ab.advance(steps = 1000)
     ns, _, _ = ab.get_ns_means_sddevs()
     assert ns == [306, 694]
 
@@ -46,8 +44,7 @@ def test_ABtest_means_and_sddevs():
         (7, gen_normals(8, 3, 1337)),
     ]
     ab = ABtest.from_list_of_pairs(x, 1337)
-    for i in range(1000):
-        ab.advance()
+    ab.advance(steps = 1000)
     _, means, stdevs = ab.get_ns_means_sddevs()
     assert means == approx([0, 3, 8], abs=0.1)
     assert stdevs == approx([1, 2, 3], abs=0.1)

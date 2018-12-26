@@ -53,9 +53,10 @@ class ABtest:
         args = [list(z) for z in zip(*lop)]
         return cls(*args, seed)
 
-    def advance(self):
-        variant = self._rng.choice(len(self._weights), p=self._weights)
-        self._trackers[variant].advance()
+    def advance(self, steps: int = 1):
+        for _ in range(steps):
+            variant = self._rng.choice(len(self._weights), p=self._weights)
+            self._trackers[variant].advance()
 
     @typechecked
     def get_ns_means_sddevs(self) -> List[List[Any]]:
