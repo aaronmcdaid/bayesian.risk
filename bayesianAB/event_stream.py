@@ -41,6 +41,7 @@ class ABtest:
     @typechecked
     def __init__(self, weights: List[float], generators: List[Any], seed: int):
         assert len(generators) == len(weights)
+        self._M = len(generators)
         self._weights = np.array(weights) / sum(weights)
         self._trackers = [TrackOneStream(g) for g in generators]
         self._rng = np.random.RandomState()
@@ -63,3 +64,7 @@ class ABtest:
     def get_ns_means_sddevs(self) -> List[List[Any]]:
         list_of_triples = [t.get_n_mean_and_sddev() for t in self._trackers]
         return [list(z) for z in zip(*list_of_triples)]
+
+    @typechecked
+    def get_number_of_variants(self) -> int:
+        return self._M
