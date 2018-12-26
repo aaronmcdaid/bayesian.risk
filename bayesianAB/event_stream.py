@@ -19,11 +19,12 @@ class TrackOneStream:
         self._sum = 0.0
         self._sum_squares = 0.0
 
-    def advance(self):
-        x = next(self._g)
-        self._n += 1
-        self._sum += x
-        self._sum_squares += x * x
+    def advance(self, steps: int = 1):
+        for _ in range(steps):
+            x = next(self._g)
+            self._n += 1
+            self._sum += x
+            self._sum_squares += x * x
 
     def get_n_mean_and_sddev(self):
         n = self._n
