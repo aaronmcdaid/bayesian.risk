@@ -31,3 +31,12 @@ def test_difference_of_means__as_a_likelihood_function():
 
     assert np.mean(diffs) == approx(true_mean_diff, abs=0.02)
     assert np.std(diffs) == approx(np.mean(sds), abs=0.04)
+
+
+def test_ABtest_many_iterations():
+    ab = ABtest.from_simple_args(true_diff=3, sd=2, weight=0.3)
+    df = bm.many_iterations(ab, 100)
+    (l, g) = df.iloc[99,]
+    assert l == approx(0)
+    assert g == approx(3, abs=0.5) # very rough
+    assert df.shape == (100, 2)
