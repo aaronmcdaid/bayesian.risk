@@ -1,8 +1,26 @@
-from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest
+from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, one_column_per_variant, seeded_RandomState
 import itertools as it
 import numpy as np
 from pytest import approx
 
+
+def test_random_variants():
+    rng = seeded_RandomState(1337)
+    x = random_variants(rng, [0.3, 0.6, 0.1], 1000)
+    counts = x.value_counts()
+    assert counts[0] == 306
+    assert counts[1] == 594
+    assert counts[2] == 100
+
+
+def test_make_one_column_per_variant():
+    rng = seeded_RandomState(1337)
+    weights = [0.3, 0.6, 0.1]
+    M = len(weights)
+    x = random_variants(rng, weights, 1000)
+    df = one_column_per_variant(M, x)
+    counts = df.agg('sum')
+    assert counts.to_dict() == x.value_counts().to_dict()
 
 def test_gen_normals():
     g = gen_normals(5, 3, 1337)

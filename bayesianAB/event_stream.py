@@ -1,5 +1,39 @@
 from typeguard import typechecked, List, Any, Tuple
 import numpy as np
+import pandas as pd
+
+"""
+    Given:
+        - two pre-seeded instances of np.RandomState
+        - a set of variants, with weights
+        - (optionally) summary of any history
+    We will generally a large chunk (thousands) of
+    events with all the necessary sufficient statistics.
+"""
+
+
+@typechecked
+def seeded_RandomState(seed: int):
+    rng = np.random.RandomState()
+    rng.seed(seed)
+    return rng
+
+@typechecked
+def random_variants(rng: np.random.RandomState, weights: List[float], n: int) -> pd.Series:
+    variants = rng.choice(len(weights), p=weights, size=n)
+    return pd.Series(variants, name='variant')
+
+
+@typechecked
+def one_column_per_variant(M: int, variants: pd.Series) -> pd.DataFrame:
+    """
+    M is the number of distinct variants. Although, remember that (by chance)
+    some variants might be missing from 'variants'.
+    """
+    columns = [0 + (variants == v) for v in range(M)]
+    df = pd.concat(columns, axis=1)
+    df.columns = list(range(M))
+    return df
 
 
 @typechecked
