@@ -40,6 +40,17 @@ def one_column_per_variant(M: int, variants: pd.Series) -> pd.DataFrame:
 
 
 @typechecked
+def random_standard_normals(rng: np.random.RandomState, n: int) -> pd.Series:
+    """
+        These are all standard normals, i.e. N(0, 1). In another part of this
+        system, these standard normals will be scaled and translated according
+        to the variant.
+    """
+    norms = rng.normal(size=n)
+    return pd.Series(norms, name='standard_normal')
+
+
+@typechecked
 def gen_normals(loc: float, scale: float, seed: int):
     rng = np.random.RandomState()
     rng.seed(seed)

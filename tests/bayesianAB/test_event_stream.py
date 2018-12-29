@@ -1,4 +1,4 @@
-from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, one_column_per_variant, seeded_RandomState
+from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, one_column_per_variant, seeded_RandomState, random_standard_normals
 import itertools as it
 import numpy as np
 from pytest import approx
@@ -21,6 +21,14 @@ def test_make_one_column_per_variant():
     df = one_column_per_variant(M, x)
     counts = df.agg('sum')
     assert counts.to_dict() == x.value_counts().to_dict()
+
+
+def test_simulate_many_normals():
+    rng = seeded_RandomState(1234)
+    x = random_standard_normals(rng, 100)
+    assert x.mean() == approx(0, abs=0.4)
+    assert x.std() == approx(1, abs=0.01)
+
 
 def test_gen_normals():
     g = gen_normals(5, 3, 1337)
