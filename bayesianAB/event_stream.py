@@ -29,6 +29,9 @@ def one_column_per_variant(M: int, variants: pd.Series) -> pd.DataFrame:
     """
     M is the number of distinct variants. Although, remember that (by chance)
     some variants might be missing from 'variants'.
+    Returns a DataFrame with M columns, one for each variant.
+    The cells are 0/1, depending on which variant a given user has, i.e.
+    df[i,j] = 1 is variants[j] == i
     """
     columns = [0 + (variants == v) for v in range(M)]
     df = pd.concat(columns, axis=1)
