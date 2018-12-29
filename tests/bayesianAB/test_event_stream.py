@@ -155,7 +155,7 @@ def test_simple_dataframe_with_all_stats__regret():
     weights = [0.3, 0.7]
     means = [4, 3]
     stdevs = [2, 4]
-    REGRET_THRESHOLD_TO_WAIT_FOR = 0.01
+    REGRET_THRESHOLD_TO_WAIT_FOR = 0.0001
     df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR))
     assert df['expected_gain'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
     assert df['expected_gain'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR

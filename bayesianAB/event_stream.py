@@ -15,7 +15,7 @@ from bayesianAB.risk import risk
 """
 
 
-ITEMS_PER_CHUNK = 10
+ITEMS_PER_CHUNK = 10000
 
 
 class SimulationParams(namedtuple('SimulationParams', 'n M weights means stdevs')):
