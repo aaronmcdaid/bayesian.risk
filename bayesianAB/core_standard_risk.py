@@ -69,7 +69,7 @@ def fast_standard_risk(x: float):
     # Now to compute the index corresponding to 'x'
     # pre[0] corresponds to standard_risk(x=-10)
     # pre[n-1] corresponds to standard_risk(x=10)
-    Index = int(round((N - 1) * (x+10) / 20))
+    Index = int((N-1)//2 + round((N - 1) * x / 20))
     # If 'x' is greater than 10, then pull the index down
     Index = min(N - 1, Index)
     Index = max(0, Index)
