@@ -1,7 +1,7 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomStates, seeded_RandomState, random_standard_normals, \
         simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns, \
-        SimulationParams
+        SimulationParams, simple_dataframe_with_all_stats
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -131,6 +131,24 @@ def test_inserting_columns_and_correctness():
 
     assert central_estimate == approx(means[1] - means[0], abs=0.1)
     assert variance_of_many_means == approx(central_variance, abs=0.02)
+
+
+def test_simple_dataframe_with_all_stats__sample_size():
+    weights = [0.3, 0.7]
+    means = [3, 5]
+    stdevs = [2, 4]
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'total_sample_size >= 15')
+    assert df.iloc[-1,]['total_sample_size'] == 15
+
+
+def test_simple_dataframe_with_all_stats__risk():
+    weights = [0.3, 0.7]
+    means = [3, 4]
+    stdevs = [2, 4]
+    RISK_THRESHOLD_TO_WAIT_FOR = -0.01
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'risk >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR))
+    assert df.iloc[-1,]['risk'] >= RISK_THRESHOLD_TO_WAIT_FOR
+    assert df.iloc[-2,]['risk'] <  RISK_THRESHOLD_TO_WAIT_FOR
 
 
 def test_gen_normals():

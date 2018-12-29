@@ -15,6 +15,9 @@ from bayesianAB.risk import risk
 """
 
 
+ITEMS_PER_CHUNK = 10
+
+
 class SimulationParams(namedtuple('SimulationParams', 'n M weights means stdevs')):
     pass
 
@@ -181,6 +184,39 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
         _insert_the_risk_regret_columns(df)
         yield df
 
+
+def _generator_for_simple_dataframe_with_all_stats(
+        weights: List[float],
+        means: List[float],
+        stdevs: List[float],
+        condition: str,
+        ):
+    two_rngs = seeded_RandomStates(1337, 1234)
+    n = ITEMS_PER_CHUNK
+    M = 2
+    params = SimulationParams(n, M, weights, means, stdevs)
+    for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
+        matching_indices = df.index[df.eval(condition)].tolist()
+        if matching_indices == []:
+            yield df
+        else:
+            first_matching_index = matching_indices[0]
+            yield df.iloc[0:first_matching_index+1,]
+            break
+
+def simple_dataframe_with_all_stats(
+        weights: List[float],
+        means: List[float],
+        stdevs: List[float],
+        condition: str,
+        ) -> pd.DataFrame:
+    """
+        Keep generating cumulative dataframes until one row matching
+        'condition' is found. Then concat all rows up to and including
+        the first matching row and return the DataFrame
+    """
+    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition)
+    return pd.concat(gen).reset_index(drop=True)
 
 @typechecked
 def gen_normals(loc: float, scale: float, seed: int):
