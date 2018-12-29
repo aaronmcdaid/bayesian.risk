@@ -162,10 +162,13 @@ def _insert_the_risk_regret_columns(df):
     diff_of_means = df['difference_of_means']
     stdev_of_estimator = np.sqrt(df['variance_of_estimator'])
     shifted_score_to_pass_to_standard_risk = - diff_of_means / stdev_of_estimator
-    Risk = df.apply(lambda one_row: risk(0, one_row['difference_of_means'], np.sqrt(one_row['variance_of_estimator'])), axis=1)
-    regret = - df.apply(lambda one_row: risk(0, - one_row['difference_of_means'], np.sqrt(one_row['variance_of_estimator'])), axis=1)
+    n = df.shape[0]
+    diffs = df['difference_of_means']
+    stdevs_of_diffs = np.sqrt(df['variance_of_estimator'])
+    Risk = pd.Series([risk(0, diffs[i], stdevs_of_diffs[i]) for i in range(n)])
+    Regret = pd.Series([- risk(0, -diffs[i], stdevs_of_diffs[i]) for i in range(n)])
     df['expected_loss'] = Risk
-    df['expected_gain'] = regret
+    df['expected_gain'] = Regret
 
 
 
