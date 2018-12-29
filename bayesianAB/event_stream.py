@@ -64,7 +64,7 @@ def simulate_many_draws_for_many_variants(
     standard_normals = random_standard_normals(rng_normals, n)
 
     assignment_matrix = one_column_per_variant(M, vs)
-    assignment_matrix_renamed = assignment_matrix.rename(lambda x: 'assignment_' + str(x), axis=1)
+    assignment_matrix_renamed = assignment_matrix.rename(lambda col_name: 'assignment_' + str(col_name), axis=1)
     df = pd.concat([vs, assignment_matrix_renamed], axis = 1)
 
     """
@@ -91,6 +91,16 @@ def simulate_many_draws_for_many_variants(
         for j in range(M)]
     df = pd.concat([df] + observed_metrics, axis = 1)
     return df
+
+
+@typechecked
+def cumulate(df: pd.DataFrame): # -> pd.DataFrame:
+    # drop the variant column, and return the rest aggregated
+    # Also, rename them in order to make the names more meaningful
+    df = df.drop('variant', axis=1)
+    df = df.agg('sum')
+    return df
+
 
 
 @typechecked

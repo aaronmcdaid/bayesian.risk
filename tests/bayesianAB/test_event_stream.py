@@ -1,6 +1,6 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomState, random_standard_normals, \
-        simulate_many_draws_for_many_variants
+        simulate_many_draws_for_many_variants, cumulate
 import itertools as it
 import numpy as np
 from pytest import approx
@@ -38,7 +38,7 @@ def test_simulate_many_draws_for_many_variants():
     df = simulate_many_draws_for_many_variants(
             rng_variant,
             rng_normals,
-            100, # n: number of observations
+            1000, # n: number of observations
             2, # M: number of variants
             [0.3, 0.7], # weights
             [3, 5], # means
@@ -46,6 +46,12 @@ def test_simulate_many_draws_for_many_variants():
             )
     print()
     print(df)
+    summed_df = cumulate(df)
+    print(summed_df)
+    assert summed_df['assignment_0'] == 306
+    assert summed_df['assignment_1'] == 694
+    assert summed_df['observation_0'] / summed_df['assignment_0'] == approx(3, abs=0.1)
+    assert summed_df['observation_1'] / summed_df['assignment_1'] == approx(5, abs=0.1)
 
 
 def test_gen_normals():
