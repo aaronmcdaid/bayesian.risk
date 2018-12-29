@@ -1,6 +1,6 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomState, random_standard_normals, \
-        simulate_many_draws_for_many_variants, cumulate
+        simulate_many_draws_for_many_variants
 import itertools as it
 import numpy as np
 from pytest import approx
@@ -39,7 +39,7 @@ def test_simulate_many_draws_for_many_variants():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    df = simulate_many_draws_for_many_variants(
+    simulated_dataframes = simulate_many_draws_for_many_variants(
             rng_variant,
             rng_normals,
             n,
@@ -48,17 +48,19 @@ def test_simulate_many_draws_for_many_variants():
             means,
             stdevs,
             )
-    summed_df = cumulate(df)
-    #print()
-    #print(summed_df)
-    assert summed_df['sample_size_0'] == 3006 # approximately n * weights[0]
-    assert summed_df['sample_size_1'] == 6994 # approximately n * weights[1]
-    assert summed_df['sum_0'] / summed_df['sample_size_0'] == approx(means[0], abs=0.1)
-    assert summed_df['sum_1'] / summed_df['sample_size_1'] == approx(means[1], abs=0.1)
-    variance_0 = summed_df['sumOfSquares_0'] / summed_df['sample_size_0'] - (summed_df['sum_0'] / summed_df['sample_size_0'])**2
-    variance_1 = summed_df['sumOfSquares_1'] / summed_df['sample_size_1'] - (summed_df['sum_1'] / summed_df['sample_size_1'])**2
-    assert np.sqrt(variance_0) == approx(stdevs[0], abs=0.1)
-    assert np.sqrt(variance_1) == approx(stdevs[1], abs=0.1)
+    sample_sizes = simulated_dataframes.assignment.agg('sum')
+    sums = simulated_dataframes.metric.agg('sum')
+    sumOfSquares = simulated_dataframes.metric_squared.agg('sum')
+
+    estimated_means = sums / sample_sizes
+    estimated_variances = sumOfSquares / sample_sizes - estimated_means ** 2
+
+    assert sample_sizes[0] == 3006 # approximately n * weights[0]
+    assert sample_sizes[1] == 6994 # approximately n * weights[1]
+    assert estimated_means[0] == approx(means[0], abs=0.1)
+    assert estimated_means[1] == approx(means[1], abs=0.1)
+    assert np.sqrt(estimated_variances[0]) == approx(stdevs[0], abs=0.1)
+    assert np.sqrt(estimated_variances[1]) == approx(stdevs[1], abs=0.1)
 
 
 def test_gen_normals():

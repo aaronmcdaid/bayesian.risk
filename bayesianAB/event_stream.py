@@ -1,6 +1,7 @@
 from typeguard import typechecked, List, Any, Tuple
 import numpy as np
 import pandas as pd
+from collections import namedtuple
 
 """
     Given:
@@ -50,6 +51,10 @@ def random_standard_normals(rng: np.random.RandomState, n: int) -> pd.Series:
     return pd.Series(norms, name='standard_normal')
 
 
+class SimulationDataFrames(namedtuple('SimulationDataFrames', 'assignment metric metric_squared')):
+    pass
+
+
 @typechecked
 def simulate_many_draws_for_many_variants(
         rng_variant: np.random.RandomState,
@@ -59,59 +64,35 @@ def simulate_many_draws_for_many_variants(
         weights: List[float],
         means: List[float],
         stdevs: List[float],
-        ) -> pd.DataFrame:
+        ) -> SimulationDataFrames:
+    """
+        Returns three dataframes. Each dataframe has 'M' columns, where
+        'M' is the number of variants. The number of rows in each is 'n',
+        the number of samples that we draw.
+
+        Three returned dataframes:
+         - 'assignment_matrix' - if an observation 'i' is in variant 'j', then
+           assignment_matrix[i,j] = 1. Otherwise, it's zero.
+         - 'metric_matrix' - if an observation 'i' is in variant 'j', then
+           metric_matrix[i,j] is a draw from the distribution for variant 'j'.
+           Otherwise, it's zero.
+         - 'metric_squared_matrix' - Same as 'metric_matrix', but squared.
+
+        The reason we want this matrices is that we can perform a cumulative
+        sum on them in order to get a running total, as each observation is
+        observed, of all the relevant statistics (sample sizes, means,
+        variances)
+    """
     vs = random_variants(rng_variant, weights, n)
     standard_normals = random_standard_normals(rng_normals, n)
 
     assignment_matrix = one_column_per_variant(M, vs)
-    assignment_matrix_renamed = assignment_matrix.rename(lambda col_name: 'assignment_' + str(col_name), axis=1)
-    df = pd.concat([assignment_matrix_renamed], axis = 1)
+    metric_matrix = pd.concat([
+            (assignment_matrix[j] * (standard_normals * stdevs[j] + means[j]))
+        for j in range(M)], axis=1)
+    metric_squared_matrix = metric_matrix ** 2
 
-    """
-        At this point, df will look something like this, but we will
-        add more columns later:
-
-            variant  assignment_0  assignment_1
-        0         0             1             0
-        1         0             1             0
-        2         0             1             0
-        3         1             0             1
-        4         1             0             1
-        5         1             0             1
-        6         0             1             0
-        7         1             0             1
-        8         1             0             1
-        9         0             1             0
-    """
-
-    # next, append one column per variant, with the value of random metric.
-    observed_metrics = [
-            (df['assignment_' + str(j)] * (standard_normals * stdevs[j] + means[j])).rename('observation_' + str(j))
-        for j in range(M)]
-    # and also, the square of each metric
-    observed_metrics_squared = [
-            ((df['assignment_' + str(j)] * (standard_normals * stdevs[j] + means[j])) ** 2).rename('squared_observation_' + str(j))
-        for j in range(M)]
-    df = pd.concat([df] + observed_metrics + observed_metrics_squared, axis = 1)
-    return df
-
-
-@typechecked
-def cumulate(df: pd.DataFrame): # -> pd.DataFrame:
-    # drop the variant column, and return the rest aggregated
-    # Also, rename them in order to make the names more meaningful
-    df = df.agg('sum')
-    def renamer(col_name):
-        if col_name.startswith('assignment_'):
-            return col_name.replace('assignment_', 'sample_size_')
-        if col_name.startswith('observation_'):
-            return col_name.replace('observation_', 'sum_')
-        if col_name.startswith('squared_observation_'):
-            return col_name.replace('squared_observation_', 'sumOfSquares_')
-        return col_name
-    df = df.rename(renamer)
-    return df
-
+    return SimulationDataFrames(assignment_matrix, metric_matrix, metric_squared_matrix)
 
 
 @typechecked
