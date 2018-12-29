@@ -137,7 +137,11 @@ def generate_cumulative_dataframes(
 
 
 def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
+    # Assuming exactly two variants for now, no idea how to extend this!
     for df in generate_cumulative_dataframes(*l, **kw):
+        assert 'sample_size_0' in df.columns
+        assert 'sample_size_1' in df.columns
+        assert 'sample_size_2' not in df.columns
         for j in range(2):
             df = df.copy(deep=False)
             df.eval('estimated_mean_{} = sum_{} / sample_size_{}'.format(j, j, j), inplace=True)
