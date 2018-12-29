@@ -87,7 +87,7 @@ def simulate_many_draws_for_many_variants(
     # next, append one column per variant, with the value of
     # random metric.
     observed_metrics = [
-            (df['assignment_' + str(j)] * standard_normals * stdevs[j] + means[j]).rename('observation_' + str(j))
+            (df['assignment_' + str(j)] * (standard_normals * stdevs[j] + means[j])).rename('observation_' + str(j))
         for j in range(M)]
     df = pd.concat([df] + observed_metrics, axis = 1)
     return df
