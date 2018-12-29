@@ -65,7 +65,7 @@ def simulate_many_draws_for_many_variants(
 
     assignment_matrix = one_column_per_variant(M, vs)
     assignment_matrix_renamed = assignment_matrix.rename(lambda col_name: 'assignment_' + str(col_name), axis=1)
-    df = pd.concat([vs, assignment_matrix_renamed], axis = 1)
+    df = pd.concat([assignment_matrix_renamed], axis = 1)
 
     """
         At this point, df will look something like this, but we will
@@ -100,7 +100,6 @@ def simulate_many_draws_for_many_variants(
 def cumulate(df: pd.DataFrame): # -> pd.DataFrame:
     # drop the variant column, and return the rest aggregated
     # Also, rename them in order to make the names more meaningful
-    df = df.drop('variant', axis=1)
     df = df.agg('sum')
     def renamer(col_name):
         if col_name.startswith('assignment_'):
