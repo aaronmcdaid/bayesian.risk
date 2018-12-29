@@ -47,7 +47,7 @@ def _get_precomputed_array_of_standard_risk() -> np.array:
 @typechecked
 def fast_standard_risk(x: float):
     if x < 0:
-        return x + standard_risk(-x)
+        return x + fast_standard_risk(-x)
     pre = _get_precomputed_array_of_standard_risk()
     assert pre.dtype.name == 'float64'
 
