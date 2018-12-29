@@ -84,12 +84,15 @@ def simulate_many_draws_for_many_variants(
         9         0             1             0
     """
 
-    # next, append one column per variant, with the value of
-    # random metric.
+    # next, append one column per variant, with the value of random metric.
     observed_metrics = [
             (df['assignment_' + str(j)] * (standard_normals * stdevs[j] + means[j])).rename('observation_' + str(j))
         for j in range(M)]
-    df = pd.concat([df] + observed_metrics, axis = 1)
+    # and also, the square of each metric
+    observed_metrics_squared = [
+            ((df['assignment_' + str(j)] * (standard_normals * stdevs[j] + means[j])) ** 2).rename('squared_observation_' + str(j))
+        for j in range(M)]
+    df = pd.concat([df] + observed_metrics + observed_metrics_squared, axis = 1)
     return df
 
 
@@ -104,6 +107,8 @@ def cumulate(df: pd.DataFrame): # -> pd.DataFrame:
             return col_name.replace('assignment_', 'sample_size_')
         if col_name.startswith('observation_'):
             return col_name.replace('observation_', 'sum_')
+        if col_name.startswith('squared_observation_'):
+            return col_name.replace('squared_observation_', 'sumOfSquares_')
         return col_name
     df = df.rename(renamer)
     return df

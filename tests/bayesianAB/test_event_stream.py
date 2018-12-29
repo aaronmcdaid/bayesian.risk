@@ -35,10 +35,10 @@ def test_simulate_many_normals():
 def test_simulate_many_draws_for_many_variants():
     rng_variant = seeded_RandomState(1337)
     rng_normals = seeded_RandomState(1234)
-    n = 1000
+    n = 10000
     weights = [0.3, 0.7]
     means = [3, 5]
-    stdevs = [1, 2]
+    stdevs = [2, 4]
     df = simulate_many_draws_for_many_variants(
             rng_variant,
             rng_normals,
@@ -48,14 +48,17 @@ def test_simulate_many_draws_for_many_variants():
             means,
             stdevs,
             )
-    print()
-    print(df)
     summed_df = cumulate(df)
-    print(summed_df)
-    assert summed_df['sample_size_0'] == 306 # approximately n * weights[0]
-    assert summed_df['sample_size_1'] == 694 # approximately n * weights[1]
+    #print()
+    #print(summed_df)
+    assert summed_df['sample_size_0'] == 3006 # approximately n * weights[0]
+    assert summed_df['sample_size_1'] == 6994 # approximately n * weights[1]
     assert summed_df['sum_0'] / summed_df['sample_size_0'] == approx(means[0], abs=0.1)
     assert summed_df['sum_1'] / summed_df['sample_size_1'] == approx(means[1], abs=0.1)
+    variance_0 = summed_df['sumOfSquares_0'] / summed_df['sample_size_0'] - (summed_df['sum_0'] / summed_df['sample_size_0'])**2
+    variance_1 = summed_df['sumOfSquares_1'] / summed_df['sample_size_1'] - (summed_df['sum_1'] / summed_df['sample_size_1'])**2
+    assert np.sqrt(variance_0) == approx(stdevs[0], abs=0.1)
+    assert np.sqrt(variance_1) == approx(stdevs[1], abs=0.1)
 
 
 def test_gen_normals():
