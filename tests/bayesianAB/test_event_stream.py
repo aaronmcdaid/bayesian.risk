@@ -44,13 +44,7 @@ def test_simulate_many_draws_for_many_variants():
     stdevs = [2, 4]
     params = SimulationParams(n, M, weights, means, stdevs)
     simulated_dataframes = simulate_many_draws_for_many_variants(
-            rng_variant,
-            rng_normals,
-            n,
-            2, # M: number of variants
-            weights,
-            means,
-            stdevs,
+            (rng_variant, rng_normals),
             params,
             )
     sample_sizes = simulated_dataframes.assignment.agg('sum')

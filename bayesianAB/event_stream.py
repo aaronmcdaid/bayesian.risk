@@ -63,13 +63,7 @@ class SimulationDataFrames(namedtuple('SimulationDataFrames', 'assignment metric
 
 @typechecked
 def simulate_many_draws_for_many_variants(
-        rng_variant: np.random.RandomState,
-        rng_normals: np.random.RandomState,
-        _n: int,
-        _M: int,
-        _weights: List[float],
-        _means: List[float],
-        _stdevs: List[float],
+        two_rngs: Tuple[np.random.RandomState, np.random.RandomState],
         params: SimulationParams,
         ) -> SimulationDataFrames:
     """
@@ -90,6 +84,7 @@ def simulate_many_draws_for_many_variants(
         observed, of all the relevant statistics (sample sizes, means,
         variances)
     """
+    rng_variant, rng_normals = two_rngs
     n = params.n
     M = params.M
     weights = params.weights
@@ -127,13 +122,7 @@ def generate_cumulative_dataframes(
     last_row = None
     while True:
         simulated_dataframes = simulate_many_draws_for_many_variants(
-                rng_variant,
-                rng_normals,
-                n,
-                M,
-                weights,
-                means,
-                stdevs,
+                (rng_variant, rng_normals),
                 params,
                 )
         assignment = simulated_dataframes.assignment.agg('cumsum')
