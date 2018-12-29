@@ -168,13 +168,14 @@ def _insert_the_risk_regret_columns(df):
 
 
 
-def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
+def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
     # Assuming exactly two variants for now, no idea how to extend this!
-    for df in generate_cumulative_dataframes(*l, **kw):
+    for df in generate_cumulative_dataframes(two_rngs, params):
         df = df.copy(deep=False)
         assert 'sample_size_0' in df.columns
         assert 'sample_size_1' in df.columns
         assert 'sample_size_2' not in df.columns
+        df.eval('total_sample_size = sample_size_0 + sample_size_1', inplace=True)
         _insert_the_mean_and_variance_columns(df)
         _insert_the_ttest_columns(df)
         _insert_the_risk_regret_columns(df)
