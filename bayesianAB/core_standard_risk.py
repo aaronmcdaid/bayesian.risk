@@ -74,7 +74,7 @@ def fast_standard_risk(x: float):
     Index = max(0, Index)
     new = _Precomputed_array_of_standard_risk[Index]
 
-    assert new == approx(standard_risk(x), abs=0.01), (x, new, standard_risk(x))
+    #assert new == approx(standard_risk(x), abs=0.01), (x, new, standard_risk(x))
 
     if x < 0:
         other_side = x + fast_standard_risk(-x)
