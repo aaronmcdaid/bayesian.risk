@@ -57,6 +57,9 @@ def fast_standard_risk(x: float):
     assert pre.dtype.name == 'float64'
     assert N == 2 * n -1
 
+    assert pre[0] == approx(_Precomputed_array_of_standard_risk[(N-1)//2])
+    assert pre[0] == standard_risk(0)
+
     if np.isnan(x):
         return x
 
