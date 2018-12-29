@@ -10,6 +10,7 @@
 from typeguard import typechecked
 from scipy.stats import truncnorm, norm
 import numpy as np
+from pytest import approx
 
 
 @typechecked
@@ -33,33 +34,58 @@ def standard_risk(x: float) -> float:
 
 
 _precomputed_array_of_standard_risk = None
+_Precomputed_array_of_standard_risk = None
 
 
 def _get_precomputed_array_of_standard_risk() -> np.array:
     global _precomputed_array_of_standard_risk
+    global _Precomputed_array_of_standard_risk
     STEP = 0.001
     if _precomputed_array_of_standard_risk is None:
         xs = list(np.arange(0, 10 + STEP / 2, STEP))
         _precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
+        xs = list(np.arange(-10, 10 + STEP / 2, STEP))
+        _Precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
     return _precomputed_array_of_standard_risk
 
 
 @typechecked
 def fast_standard_risk(x: float):
+    pre = _get_precomputed_array_of_standard_risk()
+    N = len(_Precomputed_array_of_standard_risk)
+    n = len(pre)
+    assert pre.dtype.name == 'float64'
+    assert N == 2 * n -1
+
     if np.isnan(x):
         return x
+
+    if x < -10:
+        return x
+
+    Index = int(round((N - 1) * (x+10) / 20))
+    # If 'x' is greater than 10, then pull the index down
+    Index = min(N - 1, Index)
+    Index = max(0, Index)
+    new = _Precomputed_array_of_standard_risk[Index]
+
+    assert new == approx(standard_risk(x), abs=0.01), (x, new, standard_risk(x))
+
     if x < 0:
         return x + fast_standard_risk(-x)
-    pre = _get_precomputed_array_of_standard_risk()
-    assert pre.dtype.name == 'float64'
+    else:
+        index = int(round((n - 1) * x / 10))
+        # If 'x' is greater than 10, then pull the index down
+        index = min(n - 1, index)
+        old = pre[index]
 
-    n = len(pre)
+        assert old == approx(new)
+        return old
 
-    # Now to compute the index corresponding to 'x'
-    # pre[0] corresponds to standard_risk(x=0)
-    # pre[n-1] corresponds to standard_risk(x=10)
 
-    index = int(round((n - 1) * x / 10))
-    # If 'x' is greater than 10, then pull the index down
-    index = min(n - 1, index)
-    return pre[index]
+        # Now to compute the index corresponding to 'x'
+        # pre[0] corresponds to standard_risk(x=0)
+        # pre[n-1] corresponds to standard_risk(x=10)
+
+        assert pre[index] == approx(_Precomputed_array_of_standard_risk[Index])
+        return pre[index]
