@@ -136,6 +136,17 @@ def generate_cumulative_dataframes(
         #print(last_row)
 
 
+def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
+    for df in generate_cumulative_dataframes(*l, **kw):
+        for j in range(2):
+            # sample_size_0  sample_size_1      sum_0      sum_1  sumOfSquares_0
+            estimated_mean = df['sum_{}'.format(j)] / df['sample_size_{}'.format(j)]
+            estimated_variance = df['sumOfSquares_{}'.format(j)] / df['sample_size_{}'.format(j)] - estimated_mean ** 2
+            df.insert(df.shape[1], 'estimated_mean_{}'.format(j), estimated_mean)
+            df.insert(df.shape[1], 'estimated_variance_{}'.format(j), estimated_variance)
+        yield df
+
+
 @typechecked
 def gen_normals(loc: float, scale: float, seed: int):
     rng = np.random.RandomState()

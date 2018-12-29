@@ -1,6 +1,6 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomState, random_standard_normals, \
-        simulate_many_draws_for_many_variants, generate_cumulative_dataframes
+        simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -86,6 +86,34 @@ def test_generate_cumulative_dataframes():
 
     total_sample_sizes = df['sample_size_0'] + df['sample_size_1']
     assert total_sample_sizes.tolist() == [s+1 for s in range(n * NUMBER_OF_CHUNKS)]
+
+
+def test_inserting_extra_columns():
+    rng_variant = seeded_RandomState(1337)
+    rng_normals = seeded_RandomState(1234)
+    n = 1000
+    NUMBER_OF_CHUNKS = 10
+    weights = [0.3, 0.7]
+    means = [3, 5]
+    stdevs = [2, 4]
+
+    g = generate_cumulative_dataframes_with_extra_columns(
+            rng_variant,
+            rng_normals,
+            n,
+            2, # M: number of variants
+            weights,
+            means,
+            stdevs,
+            )
+    for _ in range(NUMBER_OF_CHUNKS-1):
+        next(g) # discard the first NUMBER_OF_CHUNKS-1 chunks
+    last_row = next(g).iloc[-1,]
+    assert last_row['sample_size_0'] + last_row['sample_size_1'] == n * NUMBER_OF_CHUNKS
+    assert last_row['estimated_mean_0'] == approx(means[0], abs=0.1)
+    assert last_row['estimated_mean_1'] == approx(means[1], abs=0.1)
+    assert np.sqrt(last_row['estimated_variance_0']) == approx(stdevs[0], abs=0.1)
+    assert np.sqrt(last_row['estimated_variance_1']) == approx(stdevs[1], abs=0.1)
 
 
 def test_gen_normals():
