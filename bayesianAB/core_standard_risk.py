@@ -46,6 +46,8 @@ def _get_precomputed_array_of_standard_risk() -> np.array:
 
 @typechecked
 def fast_standard_risk(x: float):
+    if np.isnan(x):
+        return x
     if x < 0:
         return x + fast_standard_risk(-x)
     pre = _get_precomputed_array_of_standard_risk()
