@@ -119,13 +119,15 @@ def test_inserting_extra_columns():
 def test_inserting_columns_and_correctness():
     rng_variant = seeded_RandomState(1337)
     rng_normals = seeded_RandomState(1234)
-    n = 1000
-    NUMBER_OF_CHUNKS = 10
+    n = 100
     weights = [0.3, 0.7]
     means = [3, 5]
-    stdevs = [2, 4]
+    stdevs = [3, 3] # must be equal to each other for this test to work
 
-    g = generate_cumulative_dataframes_with_extra_columns(
+    many_estimates_of_the_difference = []
+    many_estimates_of_the_estimatorvariance = []
+    for _ in range(100):
+        g = generate_cumulative_dataframes_with_extra_columns(
             rng_variant,
             rng_normals,
             n,
@@ -134,16 +136,16 @@ def test_inserting_columns_and_correctness():
             means,
             stdevs,
             )
-    for _ in range(NUMBER_OF_CHUNKS-1):
-        next(g) # discard the first NUMBER_OF_CHUNKS-1 chunks
-    last_row = next(g).iloc[-1,]
-    print()
-    print(last_row)
-    assert last_row['sample_size_0'] + last_row['sample_size_1'] == n * NUMBER_OF_CHUNKS
-    assert last_row['estimated_mean_0'] == approx(means[0], abs=0.1)
-    assert last_row['estimated_mean_1'] == approx(means[1], abs=0.1)
-    assert np.sqrt(last_row['estimated_variance_0']) == approx(stdevs[0], abs=0.1)
-    assert np.sqrt(last_row['estimated_variance_1']) == approx(stdevs[1], abs=0.1)
+        last_row = next(g).iloc[-1,]
+        many_estimates_of_the_difference.append(last_row['difference_of_means'])
+        many_estimates_of_the_estimatorvariance.append(last_row['variance_of_estimator'])
+
+    central_estimate = np.mean(many_estimates_of_the_difference)
+    variance_of_many_means = np.var(many_estimates_of_the_difference)
+    central_variance = np.mean(many_estimates_of_the_estimatorvariance)
+
+    assert central_estimate == approx(means[1] - means[0], abs=0.1)
+    assert variance_of_many_means == approx(central_variance, abs=0.02)
 
 
 def test_gen_normals():
