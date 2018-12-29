@@ -15,6 +15,10 @@ from bayesianAB.risk import risk
 """
 
 
+class SimulationParams(namedtuple('SimulationParams', 'n M weights means stdevs')):
+    pass
+
+
 @typechecked
 def seeded_RandomState(seed: int):
     rng = np.random.RandomState()
@@ -66,6 +70,7 @@ def simulate_many_draws_for_many_variants(
         weights: List[float],
         means: List[float],
         stdevs: List[float],
+        params: SimulationParams,
         ) -> SimulationDataFrames:
     """
         Returns three dataframes. Each dataframe has 'M' columns, where
@@ -106,6 +111,7 @@ def generate_cumulative_dataframes(
         weights: List[float],
         means: List[float],
         stdevs: List[float],
+        params: SimulationParams,
         ):
     """
         We don't know in advance how many samples we'll need, so this returns
@@ -122,6 +128,7 @@ def generate_cumulative_dataframes(
                 weights,
                 means,
                 stdevs,
+                params,
                 )
         assignment = simulated_dataframes.assignment.agg('cumsum')
         metric = simulated_dataframes.metric.agg('cumsum')

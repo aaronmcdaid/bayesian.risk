@@ -1,6 +1,7 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomState, random_standard_normals, \
-        simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns
+        simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns, \
+        SimulationParams
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -37,9 +38,11 @@ def test_simulate_many_draws_for_many_variants():
     rng_variant = seeded_RandomState(1337)
     rng_normals = seeded_RandomState(1234)
     n = 10000
+    M = 2
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
+    params = SimulationParams(n, M, weights, means, stdevs)
     simulated_dataframes = simulate_many_draws_for_many_variants(
             rng_variant,
             rng_normals,
@@ -48,6 +51,7 @@ def test_simulate_many_draws_for_many_variants():
             weights,
             means,
             stdevs,
+            params,
             )
     sample_sizes = simulated_dataframes.assignment.agg('sum')
     sums = simulated_dataframes.metric.agg('sum')
@@ -68,10 +72,12 @@ def test_generate_cumulative_dataframes():
     rng_variant = seeded_RandomState(1337)
     rng_normals = seeded_RandomState(1234)
     n = 10
+    M = 2
     NUMBER_OF_CHUNKS = 2
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
+    params = SimulationParams(n, M, weights, means, stdevs)
 
     dfs= list(it.islice(generate_cumulative_dataframes(
             rng_variant,
@@ -81,6 +87,7 @@ def test_generate_cumulative_dataframes():
             weights,
             means,
             stdevs,
+            params,
             ), NUMBER_OF_CHUNKS))
     df = pd.concat(dfs, axis = 0).reset_index(drop=True)
 
@@ -89,22 +96,24 @@ def test_generate_cumulative_dataframes():
 
 
 def test_inserting_extra_columns():
-    rng_variant = seeded_RandomState(1337)
-    rng_normals = seeded_RandomState(1234)
+    two_rngs = (seeded_RandomState(1337), seeded_RandomState(1234))
     n = 1000
+    M = 2
     NUMBER_OF_CHUNKS = 10
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
+    params = SimulationParams(n, M, weights, means, stdevs)
 
     g = generate_cumulative_dataframes_with_extra_columns(
-            rng_variant,
-            rng_normals,
+            two_rngs[0],
+            two_rngs[1],
             n,
-            2, # M: number of variants
+            M, # M: number of variants
             weights,
             means,
             stdevs,
+            params,
             )
     for _ in range(NUMBER_OF_CHUNKS-1):
         next(g) # discard the first NUMBER_OF_CHUNKS-1 chunks
@@ -120,9 +129,11 @@ def test_inserting_columns_and_correctness():
     rng_variant = seeded_RandomState(1337)
     rng_normals = seeded_RandomState(1234)
     n = 100
+    M = 2
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [3, 3] # must be equal to each other for this test to work
+    params = SimulationParams(n, M, weights, means, stdevs)
 
     many_estimates_of_the_difference = []
     many_estimates_of_the_estimatorvariance = []
@@ -135,6 +146,7 @@ def test_inserting_columns_and_correctness():
             weights,
             means,
             stdevs,
+            params,
             )
         last_row = next(g).iloc[-1,]
         many_estimates_of_the_difference.append(last_row['difference_of_means'])
