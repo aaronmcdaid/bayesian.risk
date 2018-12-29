@@ -1,5 +1,5 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
-        one_column_per_variant, seeded_RandomState, random_standard_normals, \
+        one_column_per_variant, seeded_RandomStates, seeded_RandomState, random_standard_normals, \
         simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns, \
         SimulationParams
 import itertools as it
@@ -35,8 +35,7 @@ def test_simulate_many_normals():
 
 
 def test_simulate_many_draws_for_many_variants():
-    rng_variant = seeded_RandomState(1337)
-    rng_normals = seeded_RandomState(1234)
+    two_rngs = seeded_RandomStates(1337, 1234)
     n = 10000
     M = 2
     weights = [0.3, 0.7]
@@ -44,7 +43,7 @@ def test_simulate_many_draws_for_many_variants():
     stdevs = [2, 4]
     params = SimulationParams(n, M, weights, means, stdevs)
     simulated_dataframes = simulate_many_draws_for_many_variants(
-            (rng_variant, rng_normals),
+            two_rngs,
             params,
             )
     sample_sizes = simulated_dataframes.assignment.agg('sum')
@@ -63,8 +62,7 @@ def test_simulate_many_draws_for_many_variants():
 
 
 def test_generate_cumulative_dataframes():
-    rng_variant = seeded_RandomState(1337)
-    rng_normals = seeded_RandomState(1234)
+    two_rngs = seeded_RandomStates(1337, 1234)
     n = 10
     M = 2
     NUMBER_OF_CHUNKS = 2
@@ -74,7 +72,7 @@ def test_generate_cumulative_dataframes():
     params = SimulationParams(n, M, weights, means, stdevs)
 
     dfs= list(it.islice(generate_cumulative_dataframes(
-            (rng_variant, rng_normals,),
+            two_rngs,
             params,
             ), NUMBER_OF_CHUNKS))
     df = pd.concat(dfs, axis = 0).reset_index(drop=True)
@@ -84,7 +82,7 @@ def test_generate_cumulative_dataframes():
 
 
 def test_inserting_extra_columns():
-    two_rngs = (seeded_RandomState(1337), seeded_RandomState(1234))
+    two_rngs = seeded_RandomStates(1337, 1234)
     n = 1000
     M = 2
     NUMBER_OF_CHUNKS = 10
@@ -108,8 +106,7 @@ def test_inserting_extra_columns():
 
 
 def test_inserting_columns_and_correctness():
-    rng_variant = seeded_RandomState(1337)
-    rng_normals = seeded_RandomState(1234)
+    two_rngs = seeded_RandomStates(1337, 1234)
     n = 100
     M = 2
     weights = [0.3, 0.7]
@@ -121,7 +118,7 @@ def test_inserting_columns_and_correctness():
     many_estimates_of_the_estimatorvariance = []
     for _ in range(100):
         g = generate_cumulative_dataframes_with_extra_columns(
-            (rng_variant, rng_normals,),
+            two_rngs,
             params,
             )
         last_row = next(g).iloc[-1,]

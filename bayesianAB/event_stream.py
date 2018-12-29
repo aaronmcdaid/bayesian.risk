@@ -20,10 +20,14 @@ class SimulationParams(namedtuple('SimulationParams', 'n M weights means stdevs'
 
 
 @typechecked
-def seeded_RandomState(seed: int):
+def seeded_RandomState(seed: int) -> np.random.RandomState:
     rng = np.random.RandomState()
     rng.seed(seed)
     return rng
+
+
+def seeded_RandomStates(*seeds) -> tuple:
+    return tuple([seeded_RandomState(seed) for seed in seeds])
 
 @typechecked
 def random_variants(rng: np.random.RandomState, weights: List[float], n: int) -> pd.Series:
