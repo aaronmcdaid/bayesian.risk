@@ -139,6 +139,7 @@ def generate_cumulative_dataframes(
 def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
     for df in generate_cumulative_dataframes(*l, **kw):
         for j in range(2):
+            df = df.copy(deep=False)
             df.eval('estimated_mean_{} = sum_{} / sample_size_{}'.format(j, j, j), inplace=True)
             df.eval('estimated_variance_{} = sumOfSquares_{} / sample_size_{} - estimated_mean_{} ** 2'.format(j, j, j, j), inplace=True)
         yield df
