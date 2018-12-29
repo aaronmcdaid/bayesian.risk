@@ -61,9 +61,35 @@ def simulate_many_draws_for_many_variants(
         stdevs: List[float],
         ) -> pd.DataFrame:
     vs = random_variants(rng_variant, weights, n)
+    standard_normals = random_standard_normals(rng_normals, n)
+
     assignment_matrix = one_column_per_variant(M, vs)
     assignment_matrix_renamed = assignment_matrix.rename(lambda x: 'assignment_' + str(x), axis=1)
     df = pd.concat([vs, assignment_matrix_renamed], axis = 1)
+
+    """
+        At this point, df will look something like this, but we will
+        add more columns later:
+
+            variant  assignment_0  assignment_1
+        0         0             1             0
+        1         0             1             0
+        2         0             1             0
+        3         1             0             1
+        4         1             0             1
+        5         1             0             1
+        6         0             1             0
+        7         1             0             1
+        8         1             0             1
+        9         0             1             0
+    """
+
+    # next, append one column per variant, with the value of
+    # random metric.
+    observed_metrics = [
+            (df['assignment_' + str(j)] * standard_normals * stdevs[j] + means[j]).rename('observation_' + str(j))
+        for j in range(M)]
+    df = pd.concat([df] + observed_metrics, axis = 1)
     return df
 
 

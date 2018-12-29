@@ -38,8 +38,8 @@ def test_simulate_many_draws_for_many_variants():
     df = simulate_many_draws_for_many_variants(
             rng_variant,
             rng_normals,
-            20, # n - number of observations
-            2, # M - number of variants
+            100, # n: number of observations
+            2, # M: number of variants
             [0.3, 0.7], # weights
             [3, 5], # means
             [1, 2], # standard deviations
