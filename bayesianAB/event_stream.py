@@ -51,6 +51,23 @@ def random_standard_normals(rng: np.random.RandomState, n: int) -> pd.Series:
 
 
 @typechecked
+def simulate_many_draws_for_many_variants(
+        rng_variant: np.random.RandomState,
+        rng_normals: np.random.RandomState,
+        n: int,
+        M: int,
+        weights: List[float],
+        means: List[float],
+        stdevs: List[float],
+        ) -> pd.DataFrame:
+    vs = random_variants(rng_variant, weights, n)
+    assignment_matrix = one_column_per_variant(M, vs)
+    assignment_matrix_renamed = assignment_matrix.rename(lambda x: 'assignment_' + str(x), axis=1)
+    df = pd.concat([vs, assignment_matrix_renamed], axis = 1)
+    return df
+
+
+@typechecked
 def gen_normals(loc: float, scale: float, seed: int):
     rng = np.random.RandomState()
     rng.seed(seed)

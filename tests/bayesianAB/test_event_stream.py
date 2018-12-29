@@ -1,4 +1,6 @@
-from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, one_column_per_variant, seeded_RandomState, random_standard_normals
+from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
+        one_column_per_variant, seeded_RandomState, random_standard_normals, \
+        simulate_many_draws_for_many_variants
 import itertools as it
 import numpy as np
 from pytest import approx
@@ -28,6 +30,22 @@ def test_simulate_many_normals():
     x = random_standard_normals(rng, 100)
     assert x.mean() == approx(0, abs=0.4)
     assert x.std() == approx(1, abs=0.01)
+
+
+def test_simulate_many_draws_for_many_variants():
+    rng_variant = seeded_RandomState(1337)
+    rng_normals = seeded_RandomState(1234)
+    df = simulate_many_draws_for_many_variants(
+            rng_variant,
+            rng_normals,
+            20, # n - number of observations
+            2, # M - number of variants
+            [0.3, 0.7], # weights
+            [3, 5], # means
+            [1, 2], # standard deviations
+            )
+    print()
+    print(df)
 
 
 def test_gen_normals():
