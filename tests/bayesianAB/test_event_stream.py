@@ -48,10 +48,10 @@ def test_simulate_many_draws_for_many_variants():
     print(df)
     summed_df = cumulate(df)
     print(summed_df)
-    assert summed_df['assignment_0'] == 306
-    assert summed_df['assignment_1'] == 694
-    assert summed_df['observation_0'] / summed_df['assignment_0'] == approx(3, abs=0.1)
-    assert summed_df['observation_1'] / summed_df['assignment_1'] == approx(5, abs=0.1)
+    assert summed_df['sample_size_0'] == 306
+    assert summed_df['sample_size_1'] == 694
+    assert summed_df['sum_0'] / summed_df['sample_size_0'] == approx(3, abs=0.1)
+    assert summed_df['sum_1'] / summed_df['sample_size_1'] == approx(5, abs=0.1)
 
 
 def test_gen_normals():

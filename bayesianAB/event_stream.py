@@ -99,6 +99,13 @@ def cumulate(df: pd.DataFrame): # -> pd.DataFrame:
     # Also, rename them in order to make the names more meaningful
     df = df.drop('variant', axis=1)
     df = df.agg('sum')
+    def renamer(col_name):
+        if col_name.startswith('assignment_'):
+            return col_name.replace('assignment_', 'sample_size_')
+        if col_name.startswith('observation_'):
+            return col_name.replace('observation_', 'sum_')
+        return col_name
+    df = df.rename(renamer)
     return df
 
 
