@@ -2,6 +2,8 @@ from typeguard import typechecked, List, Any, Tuple
 import numpy as np
 import pandas as pd
 from collections import namedtuple
+from bayesianAB.core_standard_risk import fast_standard_risk
+from bayesianAB.risk import risk
 
 """
     Given:
@@ -151,6 +153,18 @@ def _insert_the_ttest_columns(df):
     df.eval('variance_of_estimator = @pooled_variance * (1/sample_size_0 + 1/sample_size_1)', inplace=True)
 
 
+def _insert_the_risk_regret_columns(df):
+    # this is equivalent to calling
+    #   risk(0, difference_of_means, sqrt(variance_of_estimator))
+    # for every item
+    diff_of_means = df['difference_of_means']
+    stdev_of_estimator = np.sqrt(df['variance_of_estimator'])
+    shifted_score_to_pass_to_standard_risk = - diff_of_means / stdev_of_estimator
+    Risk = df.apply(lambda one_row: risk(0, one_row['difference_of_means'], np.sqrt(one_row['variance_of_estimator'])), axis=1)
+    df['risk'] = Risk
+
+
+
 
 def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
     # Assuming exactly two variants for now, no idea how to extend this!
@@ -161,6 +175,7 @@ def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
         assert 'sample_size_2' not in df.columns
         _insert_the_mean_and_variance_columns(df)
         _insert_the_ttest_columns(df)
+        _insert_the_risk_regret_columns(df)
         yield df
 
 
