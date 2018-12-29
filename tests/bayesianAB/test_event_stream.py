@@ -146,9 +146,9 @@ def test_simple_dataframe_with_all_stats__risk():
     means = [3, 4]
     stdevs = [2, 4]
     RISK_THRESHOLD_TO_WAIT_FOR = -0.01
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'risk >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR))
-    assert df['risk'].iloc[-1] >= RISK_THRESHOLD_TO_WAIT_FOR
-    assert df['risk'].iloc[-2] <  RISK_THRESHOLD_TO_WAIT_FOR
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_loss >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR))
+    assert df['expected_loss'].iloc[-1] >= RISK_THRESHOLD_TO_WAIT_FOR
+    assert df['expected_loss'].iloc[-2] <  RISK_THRESHOLD_TO_WAIT_FOR
 
 
 def test_simple_dataframe_with_all_stats__regret():
@@ -156,9 +156,9 @@ def test_simple_dataframe_with_all_stats__regret():
     means = [4, 3]
     stdevs = [2, 4]
     REGRET_THRESHOLD_TO_WAIT_FOR = 0.01
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'regret <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR))
-    assert df['regret'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
-    assert df['regret'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR))
+    assert df['expected_gain'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
+    assert df['expected_gain'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
 
 
 def test_gen_normals():
