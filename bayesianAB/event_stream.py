@@ -2,7 +2,6 @@ from typeguard import typechecked, List, Any, Tuple
 import numpy as np
 import pandas as pd
 from collections import namedtuple
-from bayesianAB.core_standard_risk import fast_standard_risk
 from bayesianAB.risk import risk
 
 """
