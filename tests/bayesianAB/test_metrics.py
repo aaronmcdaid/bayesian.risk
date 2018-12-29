@@ -37,6 +37,6 @@ def test_ABtest_many_iterations():
     ab = ABtest.from_simple_args(true_diff=3, sd=2, weight=0.3)
     df = bm.many_iterations(ab, 100)
     (l, g) = df.iloc[99,]
-    assert l == approx(0)
+    assert l == approx(0, abs=1e-4)
     assert g == approx(3, abs=0.5) # very rough
     assert df.shape == (100, 2)
