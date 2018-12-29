@@ -1,8 +1,9 @@
 from bayesianAB.event_stream import gen_normals, TrackOneStream, ABtest, random_variants, \
         one_column_per_variant, seeded_RandomState, random_standard_normals, \
-        simulate_many_draws_for_many_variants
+        simulate_many_draws_for_many_variants, generate_cumulative_dataframes
 import itertools as it
 import numpy as np
+import pandas as pd
 from pytest import approx
 
 
@@ -61,6 +62,30 @@ def test_simulate_many_draws_for_many_variants():
     assert estimated_means[1] == approx(means[1], abs=0.1)
     assert np.sqrt(estimated_variances[0]) == approx(stdevs[0], abs=0.1)
     assert np.sqrt(estimated_variances[1]) == approx(stdevs[1], abs=0.1)
+
+
+def test_generate_cumulative_dataframes():
+    rng_variant = seeded_RandomState(1337)
+    rng_normals = seeded_RandomState(1234)
+    n = 10
+    NUMBER_OF_CHUNKS = 2
+    weights = [0.3, 0.7]
+    means = [3, 5]
+    stdevs = [2, 4]
+
+    dfs= list(it.islice(generate_cumulative_dataframes(
+            rng_variant,
+            rng_normals,
+            n,
+            2, # M: number of variants
+            weights,
+            means,
+            stdevs,
+            ), NUMBER_OF_CHUNKS))
+    df = pd.concat(dfs, axis = 0).reset_index(drop=True)
+
+    total_sample_sizes = df['sample_size_0'] + df['sample_size_1']
+    assert total_sample_sizes.tolist() == [s+1 for s in range(n * NUMBER_OF_CHUNKS)]
 
 
 def test_gen_normals():

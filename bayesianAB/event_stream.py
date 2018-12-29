@@ -96,6 +96,47 @@ def simulate_many_draws_for_many_variants(
 
 
 @typechecked
+def generate_cumulative_dataframes(
+        rng_variant: np.random.RandomState,
+        rng_normals: np.random.RandomState,
+        n: int,
+        M: int,
+        weights: List[float],
+        means: List[float],
+        stdevs: List[float],
+        ):
+    """
+        We don't know in advance how many samples we'll need, so this returns
+        a generator of dataframes, where each dataframe is cumulative and builds
+        on the last dataframe.
+    """
+    last_row = None
+    while True:
+        simulated_dataframes = simulate_many_draws_for_many_variants(
+                rng_variant,
+                rng_normals,
+                n,
+                M,
+                weights,
+                means,
+                stdevs,
+                )
+        assignment = simulated_dataframes.assignment.agg('cumsum')
+        metric = simulated_dataframes.metric.agg('cumsum')
+        metric_squared = simulated_dataframes.metric_squared.agg('cumsum')
+
+        assignment = assignment.rename(lambda j: 'sample_size_' + str(j), axis=1)
+        metric = metric.rename(lambda j: 'sum_' + str(j), axis=1)
+        metric_squared = metric_squared.rename(lambda j: 'sumOfSquares_' + str(j), axis=1)
+        one_chunk = pd.concat([assignment, metric, metric_squared], axis=1)
+        if last_row is not None:
+            one_chunk = one_chunk + last_row
+        yield one_chunk
+        last_row = one_chunk.iloc[-1,]
+        #print(last_row)
+
+
+@typechecked
 def gen_normals(loc: float, scale: float, seed: int):
     rng = np.random.RandomState()
     rng.seed(seed)
