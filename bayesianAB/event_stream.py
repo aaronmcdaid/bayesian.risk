@@ -105,13 +105,7 @@ def simulate_many_draws_for_many_variants(
 
 @typechecked
 def generate_cumulative_dataframes(
-        rng_variant: np.random.RandomState,
-        rng_normals: np.random.RandomState,
-        n: int,
-        M: int,
-        weights: List[float],
-        means: List[float],
-        stdevs: List[float],
+        two_rngs: Tuple[np.random.RandomState, np.random.RandomState],
         params: SimulationParams,
         ):
     """
@@ -122,7 +116,7 @@ def generate_cumulative_dataframes(
     last_row = None
     while True:
         simulated_dataframes = simulate_many_draws_for_many_variants(
-                (rng_variant, rng_normals),
+                two_rngs,
                 params,
                 )
         assignment = simulated_dataframes.assignment.agg('cumsum')

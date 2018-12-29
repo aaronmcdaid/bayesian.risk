@@ -74,13 +74,7 @@ def test_generate_cumulative_dataframes():
     params = SimulationParams(n, M, weights, means, stdevs)
 
     dfs= list(it.islice(generate_cumulative_dataframes(
-            rng_variant,
-            rng_normals,
-            n,
-            2, # M: number of variants
-            weights,
-            means,
-            stdevs,
+            (rng_variant, rng_normals,),
             params,
             ), NUMBER_OF_CHUNKS))
     df = pd.concat(dfs, axis = 0).reset_index(drop=True)
@@ -100,13 +94,7 @@ def test_inserting_extra_columns():
     params = SimulationParams(n, M, weights, means, stdevs)
 
     g = generate_cumulative_dataframes_with_extra_columns(
-            two_rngs[0],
-            two_rngs[1],
-            n,
-            M, # M: number of variants
-            weights,
-            means,
-            stdevs,
+            two_rngs,
             params,
             )
     for _ in range(NUMBER_OF_CHUNKS-1):
@@ -133,13 +121,7 @@ def test_inserting_columns_and_correctness():
     many_estimates_of_the_estimatorvariance = []
     for _ in range(100):
         g = generate_cumulative_dataframes_with_extra_columns(
-            rng_variant,
-            rng_normals,
-            n,
-            2, # M: number of variants
-            weights,
-            means,
-            stdevs,
+            (rng_variant, rng_normals,),
             params,
             )
         last_row = next(g).iloc[-1,]
