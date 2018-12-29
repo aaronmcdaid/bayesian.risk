@@ -87,4 +87,5 @@ def fast_standard_risk(x: float):
         old = pre[index]
 
         assert old == approx(new)
+        return new
         return old
