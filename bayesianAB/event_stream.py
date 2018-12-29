@@ -146,6 +146,13 @@ def generate_cumulative_dataframes_with_extra_columns(*l, **kw):
             df = df.copy(deep=False)
             df.eval('estimated_mean_{} = sum_{} / sample_size_{}'.format(j, j, j), inplace=True)
             df.eval('estimated_variance_{} = sumOfSquares_{} / sample_size_{} - estimated_mean_{} ** 2'.format(j, j, j, j), inplace=True)
+        # Next, comparing the two means with a t-test
+        df.eval('difference_of_means = estimated_mean_1 - estimated_mean_0', inplace=True)
+        pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
+                                      + estimated_variance_1 * (sample_size_1-1) \
+                                     ) / (sample_size_0 + sample_size_1 - 2)
+                """)
+        df.eval('variance_of_estimator = @pooled_variance * (1/sample_size_0 + 1/sample_size_1)', inplace=True)
         yield df
 
 
