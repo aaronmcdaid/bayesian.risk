@@ -79,7 +79,7 @@ def fast_standard_risk(x: float):
 
     if x < 0:
         other_side = x + fast_standard_risk(-x)
-        #assert other_side == approx(new, abs=1e-5), (x, other_side, new)
+        assert other_side == approx(new, abs=1e-3), (x, other_side, new)
         return other_side
     else:
         index = int(round((n - 1) * x / 10))
