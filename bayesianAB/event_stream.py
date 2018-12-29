@@ -131,8 +131,8 @@ def generate_cumulative_dataframes(
         one_chunk = pd.concat([assignment, metric, metric_squared], axis=1)
         if last_row is not None:
             one_chunk = one_chunk + last_row
-        yield one_chunk
         last_row = one_chunk.iloc[-1,]
+        yield one_chunk
         #print(last_row)
 
 
