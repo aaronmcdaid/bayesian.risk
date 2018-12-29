@@ -65,11 +65,11 @@ class SimulationDataFrames(namedtuple('SimulationDataFrames', 'assignment metric
 def simulate_many_draws_for_many_variants(
         rng_variant: np.random.RandomState,
         rng_normals: np.random.RandomState,
-        n: int,
-        M: int,
-        weights: List[float],
-        means: List[float],
-        stdevs: List[float],
+        _n: int,
+        _M: int,
+        _weights: List[float],
+        _means: List[float],
+        _stdevs: List[float],
         params: SimulationParams,
         ) -> SimulationDataFrames:
     """
@@ -90,6 +90,12 @@ def simulate_many_draws_for_many_variants(
         observed, of all the relevant statistics (sample sizes, means,
         variances)
     """
+    n = params.n
+    M = params.M
+    weights = params.weights
+    means = params.means
+    stdevs = params.stdevs
+
     vs = random_variants(rng_variant, weights, n)
     standard_normals = random_standard_normals(rng_normals, n)
 
