@@ -36,30 +36,22 @@ def standard_risk(x: float) -> float:
 
 
 _precomputed_array_of_standard_risk = None
-_Precomputed_array_of_standard_risk = None
 
 
 def _get_precomputed_array_of_standard_risk() -> np.array:
     global _precomputed_array_of_standard_risk
-    global _Precomputed_array_of_standard_risk
     STEP = 0.001
     if _precomputed_array_of_standard_risk is None:
         xs = list(np.arange(0, 10 + STEP / 2, STEP))
         _precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
-        xs = list(np.arange(-10, 10 + STEP / 2, STEP))
-        _Precomputed_array_of_standard_risk = np.array([standard_risk(x) for x in xs])
     return _precomputed_array_of_standard_risk
 
 
 @typechecked
 def fast_standard_risk(x: float):
     pre = _get_precomputed_array_of_standard_risk()
-    N = len(_Precomputed_array_of_standard_risk)
     n = len(pre)
     assert pre.dtype.name == 'float64'
-    assert N == 2 * n -1
-
-    assert pre[0] == approx(_Precomputed_array_of_standard_risk[(N-1)//2])
 
     if np.isnan(x):
         return x
