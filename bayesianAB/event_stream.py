@@ -159,16 +159,10 @@ def _insert_the_risk_regret_columns(df):
     # this is equivalent to calling
     #   risk(0, difference_of_means, sqrt(variance_of_estimator))
     # for every item
-    diff_of_means = df['difference_of_means']
-    stdev_of_estimator = np.sqrt(df['variance_of_estimator'])
-    shifted_score_to_pass_to_standard_risk = - diff_of_means / stdev_of_estimator
-    n = df.shape[0]
     diffs = df['difference_of_means']
-    stdevs_of_diffs = np.sqrt(df['variance_of_estimator'])
-    df['expected_loss'] = risks(0, diffs, stdevs_of_diffs)
-    df['expected_gain'] = - risks(0, - diffs, stdevs_of_diffs)
-
-
+    stdev_of_estimator = np.sqrt(df['variance_of_estimator'])
+    df['expected_loss'] = risks(0, diffs, stdev_of_estimator)
+    df['expected_gain'] = - risks(0, - diffs, stdev_of_estimator)
 
 
 def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
