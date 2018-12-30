@@ -72,21 +72,4 @@ def fast_standard_risk(x: float):
     # If 'x' is greater than 10, then pull the index down
     Index = min(N - 1, Index)
     Index = max(0, Index)
-    new = _Precomputed_array_of_standard_risk[Index]
-
-    #assert new == approx(standard_risk(x), abs=0.01), (x, new, standard_risk(x))
-
-    if x < 0:
-        other_side = x + fast_standard_risk(-x)
-        assert other_side == approx(new, abs=1e-3), (x, other_side, new)
-        return new
-        return other_side
-    else:
-        index = int(round((n - 1) * x / 10))
-        # If 'x' is greater than 10, then pull the index down
-        index = min(n - 1, index)
-        old = pre[index]
-
-        assert old == approx(new)
-        return new
-        return old
+    return _Precomputed_array_of_standard_risk[Index]
