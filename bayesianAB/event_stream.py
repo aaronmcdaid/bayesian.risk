@@ -2,7 +2,7 @@ from typeguard import typechecked, List, Any, Tuple
 import numpy as np
 import pandas as pd
 from collections import namedtuple
-from bayesianAB.risk import risk
+from bayesianAB.risk import risk, risks
 
 """
     Given:
@@ -169,6 +169,10 @@ def _insert_the_risk_regret_columns(df):
     Regret = pd.Series([- risk(0, -diffs[i], stdevs_of_diffs[i]) for i in range(n)])
     df['expected_loss'] = Risk
     df['expected_gain'] = Regret
+    df['expected_Loss'] = risks(0, diffs, stdevs_of_diffs)
+    df['expected_Gain'] = - risks(0, - diffs, stdevs_of_diffs)
+    assert(df['expected_loss'].fillna(1234) == df['expected_Loss'].fillna(1234)).all()
+    assert(df['expected_gain'].fillna(1234) == df['expected_Gain'].fillna(1234)).all()
 
 
 
