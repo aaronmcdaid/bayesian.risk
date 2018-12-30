@@ -21,6 +21,8 @@ def standard_risk(x: float) -> float:
         this returns
             mean(min(Y,x))
     """
+    if np.isnan(x):
+        return x
     if x >= 0:
         # These three lines could be used for both positive
         # and negative values of 'x', but we use this if
