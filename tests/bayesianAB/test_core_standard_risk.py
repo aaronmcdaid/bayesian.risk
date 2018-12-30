@@ -35,6 +35,8 @@ def test_precompute():
     # a couple of checks around x=0
     assert fast_standard_risk(-1e-4) == fast_standard_risk(0)
     assert fast_standard_risk( 1e-4) == fast_standard_risk(0)
+    assert fast_standard_risk(-2e-3) <  fast_standard_risk(0)
+    assert fast_standard_risk( 2e-3) >  fast_standard_risk(0)
     assert fast_standard_risk(0) == approx(standard_risk(0))
 
     for x in np.arange(-13, 13, 0.1):
