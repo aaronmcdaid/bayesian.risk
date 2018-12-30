@@ -165,14 +165,8 @@ def _insert_the_risk_regret_columns(df):
     n = df.shape[0]
     diffs = df['difference_of_means']
     stdevs_of_diffs = np.sqrt(df['variance_of_estimator'])
-    Risk = pd.Series([risk(0, diffs[i], stdevs_of_diffs[i]) for i in range(n)])
-    Regret = pd.Series([- risk(0, -diffs[i], stdevs_of_diffs[i]) for i in range(n)])
-    df['expected_loss'] = Risk
-    df['expected_gain'] = Regret
-    df['expected_Loss'] = risks(0, diffs, stdevs_of_diffs)
-    df['expected_Gain'] = - risks(0, - diffs, stdevs_of_diffs)
-    assert(df['expected_loss'].fillna(1234) == df['expected_Loss'].fillna(1234)).all()
-    assert(df['expected_gain'].fillna(1234) == df['expected_Gain'].fillna(1234)).all()
+    df['expected_loss'] = risks(0, diffs, stdevs_of_diffs)
+    df['expected_gain'] = - risks(0, - diffs, stdevs_of_diffs)
 
 
 
