@@ -32,6 +32,11 @@ def test_standard_risk__symmetry():
 
 
 def test_precompute():
+    # a couple of checks around x=0
+    assert fast_standard_risk(-1e-4) == fast_standard_risk(0)
+    assert fast_standard_risk( 1e-4) == fast_standard_risk(0)
+    assert fast_standard_risk(0) == approx(standard_risk(0))
+
     for x in np.arange(-13, 13, 0.1):
         assert fast_standard_risk(x) == approx(standard_risk(x), abs=1e-3)
     for x in [-1.939123180390296, 1.939123180390296,]:
