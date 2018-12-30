@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from bayesianAB.risk import risk
+from bayesianAB.risk import risk, risks
 import numpy as np
 
 
@@ -33,3 +33,13 @@ def test_risk__scaled_and_translated():
 def test_risk_default_params():
     # check the default params work
     assert risk(7, 0, 1) == risk(7)
+
+
+def test_risks():
+    # check that risks() is the same as repeated applications of risk()
+    xs = np.array([1.,2.,3.])
+    locs = np.array([2.,3.,4.])
+    scales = np.array([3.,2.,1.])
+    rs = risks(xs, locs, scales)
+    for (x, loc, scale, r) in zip(xs, locs, scales, rs):
+        assert risk(x, loc, scale) == approx(r, abs=1e-3)
