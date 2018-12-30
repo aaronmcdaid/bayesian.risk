@@ -1,5 +1,5 @@
 from typeguard import typechecked
-from bayesianAB.core_standard_risk import standard_risk, fast_standard_risk
+from bayesianAB.core_standard_risk import standard_risk, fast_standard_risk, fast_standard_risks
 from pytest import approx
 import numpy as np
 
@@ -43,3 +43,33 @@ def test_precompute():
         assert fast_standard_risk(x) == approx(standard_risk(x), abs=1e-3)
     for x in [-1.939123180390296, 1.939123180390296,]:
         assert fast_standard_risk(x) == approx(standard_risk(x), abs=1e-3), (x, standard_risk(x), fast_standard_risk(x))
+
+
+def test_fast_standard_risks_positive():
+    xs = np.array([0,1,2,10,15])
+    ys = fast_standard_risks(xs)
+    verify = np.array([standard_risk(x) for x in xs.tolist()])
+    assert (ys == approx(verify))
+
+
+def test_fast_standard_risks_nan():
+    xs = np.array([0,1,2,np.nan,10,15])
+    ys = fast_standard_risks(xs)
+    verify = np.array([standard_risk(x) for x in xs.tolist()])
+    assert (np.isnan(ys) == np.isnan(verify)).all()
+    assert (np.nan_to_num(ys) == approx(np.nan_to_num(verify)))
+
+
+def test_fast_standard_risks_negative():
+    xs = np.array([-1, -2, -15])
+    ys = fast_standard_risks(xs)
+    verify = np.array([standard_risk(x) for x in xs.tolist()])
+    assert (np.nan_to_num(ys) == approx(np.nan_to_num(verify)))
+
+
+def test_fast_standard_risks_mix():
+    xs = np.array([0,1,-2,np.nan,10,-13,15])
+    ys = fast_standard_risks(xs)
+    verify = np.array([standard_risk(x) for x in xs.tolist()])
+    assert (np.isnan(ys) == np.isnan(verify)).all()
+    assert (np.nan_to_num(ys) == approx(np.nan_to_num(verify)))

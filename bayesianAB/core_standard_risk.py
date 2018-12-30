@@ -11,6 +11,7 @@ from typeguard import typechecked
 from scipy.stats import truncnorm, norm
 import numpy as np
 from pytest import approx
+import pandas as pd
 
 
 @typechecked
@@ -75,3 +76,25 @@ def fast_standard_risk(x: float):
     Index = min(N - 1, Index)
     Index = max(0, Index)
     return _Precomputed_array_of_standard_risk[Index]
+
+
+@typechecked
+def fast_standard_risks(x: np.array):
+    result = x * np.nan
+    non_nega_indices = pd.Series(x).fillna(-1) >= 0
+    negative_indices = pd.Series(x).fillna(1) < 0
+    result[non_nega_indices] = _only_non_negative_fast_standard_risks(x[non_nega_indices])
+    result[negative_indices] = x[negative_indices] + _only_non_negative_fast_standard_risks(-x[negative_indices])
+    return result
+
+
+
+@typechecked
+def _only_non_negative_fast_standard_risks(x: np.array):
+    assert (x >= 0).all()
+    pre = _get_precomputed_array_of_standard_risk()
+    n = len(pre)
+    indices = ((n - 1) * x / 10).round()
+    # If 'x' is greater than 10, then pull the index down
+    indices = np.minimum(n - 1, indices).astype(int)
+    return pre[indices]
