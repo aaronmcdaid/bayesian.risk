@@ -11,7 +11,6 @@ from typeguard import typechecked
 from scipy.stats import truncnorm, norm
 import numpy as np
 from pytest import approx
-import pandas as pd
 
 
 @typechecked
@@ -80,11 +79,22 @@ def fast_standard_risk(x: float):
 
 @typechecked
 def fast_standard_risks(x: np.array):
-    result = x * np.nan
-    non_nega_indices = pd.Series(x).fillna(-1) >= 0
-    negative_indices = pd.Series(x).fillna(1) < 0
-    result[non_nega_indices] = _only_non_negative_fast_standard_risks(x[non_nega_indices])
+    # Make sure it's floating-point, not integer
+    x = x.astype('float', copy=False)
+    # Remember where the NaNs are
+    indices_of_nan = np.isnan(x)
+    # Convert NaNs to zero
+    x = np.nan_to_num(x)
+    # Remember where the 'x' are negative
+    negative_indices = x < 0
+    # Prepare the result vector
+    result = x * 0
+    # Store the results for the non-negative xs
+    result[~ negative_indices] = _only_non_negative_fast_standard_risks(x[~ negative_indices])
+    # Store the results for the negative xs
     result[negative_indices] = x[negative_indices] + _only_non_negative_fast_standard_risks(-x[negative_indices])
+    # Write NaN in for the NaNs
+    result[indices_of_nan] = np.nan
     return result
 
 
