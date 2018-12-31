@@ -199,6 +199,14 @@ def _generator_for_simple_dataframe_with_all_stats(
             yield df.iloc[0:first_matching_index+1,]
             break
 
+
+@typechecked
+def _adjust_condition_for_min_sample_size(condition: str, min_sample_size: int) -> str:
+    if min_sample_size > 0:
+        condition = '({condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
+    return condition
+
+
 def simple_dataframe_with_all_stats(
         weights: List[float],
         means: List[float],
@@ -215,7 +223,6 @@ def simple_dataframe_with_all_stats(
     # If either 'seeds' value is 'None', replace it with a random value
     seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
     seed1 = seeds[1] if seeds[1] is not None else np.random.randint(10000)
-    if min_sample_size > 0:
-        condition = '({condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
+    condition = _adjust_condition_for_min_sample_size(condition, min_sample_size)
     gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, (seed0, seed1))
     return pd.concat(gen).reset_index(drop=True)

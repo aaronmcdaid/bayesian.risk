@@ -169,7 +169,4 @@ def test_simple_dataframe_with_all_stats__min_sample_size():
     stdevs = [2, 4]
     df = simple_dataframe_with_all_stats(weights, means, stdevs, 'True', min_sample_size = 13)
     last_row = df.iloc[-1,]
-    print(last_row.sample_size_0, last_row.sample_size_1)
-    print(min(last_row.sample_size_0, last_row.sample_size_1))
     assert min(last_row.sample_size_0, last_row.sample_size_1) == 13
-    #assert df.iloc[-1,]['total_sample_size'] == 15
