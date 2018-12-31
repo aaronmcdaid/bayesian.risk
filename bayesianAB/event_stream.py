@@ -37,7 +37,7 @@ class SimulationParams:
                 stopping_condition: str,
                 seeds: Optional[Tuple[int, int]] = None,
                 min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
-                prior = Prior.flat_prior(),
+                prior = Prior.get_flat_prior(),
             ):
         # The three lists must be of the same size
         assert len(weights) == len(means)
@@ -203,8 +203,10 @@ def _insert_the_mean_and_variance_columns(df):
         df.eval('estimated_variance_{} = sumOfSquares_{} / sample_size_{} - estimated_mean_{} ** 2'.format(j, j, j, j), inplace=True)
 
 
-def _insert_the_ttest_columns(df):
+def _insert_the_ttest_columns(df, prior: Prior):
     # This is where any prior would be applied
+    assert prior.prior_mean == 0
+    assert np.isinf(prior.prior_stdev)
     df.eval('difference_of_means = estimated_mean_1 - estimated_mean_0', inplace=True)
     pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
                                   + estimated_variance_1 * (sample_size_1-1) \
@@ -232,7 +234,7 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: P
         assert 'sample_size_2' not in df.columns
         df.eval('total_sample_size = sample_size_0 + sample_size_1', inplace=True)
         _insert_the_mean_and_variance_columns(df)
-        _insert_the_ttest_columns(df)
+        _insert_the_ttest_columns(df, prior)
         _insert_the_risk_regret_columns(df)
         yield df
 
@@ -245,7 +247,8 @@ def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams)
     two_rngs = sim_params.get_two_seeded_generators() #seeded_RandomStates(seeds[0], seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
     adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
-    for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params, sim_params.prior):
+    prior = sim_params.prior
+    for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior):
         matching_indices = df.index[df.eval(adjusted_stopping_condition)].tolist()
         if matching_indices == []:
             yield df

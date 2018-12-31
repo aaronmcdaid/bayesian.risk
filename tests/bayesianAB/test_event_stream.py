@@ -94,7 +94,7 @@ def test_inserting_extra_columns():
     g = generate_cumulative_dataframes_with_extra_columns(
             two_rngs,
             params,
-            Prior.flat_prior,
+            Prior.get_flat_prior(),
             )
     for _ in range(NUMBER_OF_CHUNKS-1):
         next(g) # discard the first NUMBER_OF_CHUNKS-1 chunks
@@ -121,7 +121,7 @@ def test_inserting_columns_and_correctness():
         g = generate_cumulative_dataframes_with_extra_columns(
             two_rngs,
             params,
-            Prior.flat_prior,
+            Prior.get_flat_prior(),
             )
         last_row = next(g).iloc[-1,]
         many_estimates_of_the_difference.append(last_row['difference_of_means'])
