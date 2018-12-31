@@ -17,6 +17,33 @@ from bayesianAB.risk import risk, risks
 ITEMS_PER_CHUNK = 10000
 
 
+class SimulationParams:
+    """
+        This records all the parameters needed to define and run a simulation.
+        - The number of variants
+        - The weights (normally 50/50) of the variants
+        - The means and standard deviations of the metric, for each variant
+        - The stopping condition
+        - The two seeds (may None)
+    """
+
+    @typechecked
+    def __init__(self,
+                weights: List[float],
+                means: List[float],
+                stdevs: List[float],
+                stopping_condition: str,
+                seeds: Optional[Tuple[int, int]] = None,
+            ):
+        assert len(weights) == len(means)
+        assert len(weights) == len(stdevs)
+        self.weights = weights
+        self.means = means
+        self.stdevs = stdevs
+        self.stopping_condition = stopping_condition
+        self.seeds = seeds
+
+
 class SimulationParamsForOneChunk:
     """ This is an 'internal' class, which describes there bare minimum
     needed to compute one 'chunk' of observations. It doesn't know anything
@@ -189,19 +216,13 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
         yield df
 
 
-def _generator_for_simple_dataframe_with_all_stats(
-        weights: List[float],
-        means: List[float],
-        stdevs: List[float],
-        condition: str,
-        seeds: Tuple[int, int],
-        ):
-    two_rngs = seeded_RandomStates(seeds[0], seeds[1])
+def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams):
+    two_rngs = seeded_RandomStates(sim_params.seeds[0], sim_params.seeds[1])
     n = ITEMS_PER_CHUNK
     M = 2
-    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, sim_params.weights, sim_params.means, sim_params.stdevs)
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
-        matching_indices = df.index[df.eval(condition)].tolist()
+        matching_indices = df.index[df.eval(sim_params.stopping_condition)].tolist()
         if matching_indices == []:
             yield df
         else:
@@ -211,23 +232,23 @@ def _generator_for_simple_dataframe_with_all_stats(
 
 
 @typechecked
-def _adjust_condition_for_min_sample_size(condition: str, min_sample_size: int) -> str:
+def _adjust_condition_for_min_sample_size(stopping_condition: str, min_sample_size: int) -> str:
     if min_sample_size > 0:
-        condition = '({condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
-    return condition
+        stopping_condition = '({stopping_condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
+    return stopping_condition
 
 
 def simple_dataframe_with_all_stats(
         weights: List[float],
         means: List[float],
         stdevs: List[float],
-        condition: str,
+        stopping_condition: str,
         seeds: Optional[Tuple[int, int]] = None,
         min_sample_size = 5,
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
-        'condition' is found. Then concat all rows up to and including
+        'stopping_condition' is found. Then concat all rows up to and including
         the first matching row and return the DataFrame
 
         Also, this will wait until every variant has at least
@@ -238,6 +259,7 @@ def simple_dataframe_with_all_stats(
     # If either 'seeds' value is 'None', replace it with a random value
     if seeds is None:
         seeds = (np.random.randint(10000), np.random.randint(10000))
-    condition = _adjust_condition_for_min_sample_size(condition, min_sample_size)
-    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, seeds)
+    stopping_condition = _adjust_condition_for_min_sample_size(stopping_condition, min_sample_size)
+    sim_params = SimulationParams(weights, means, stdevs, stopping_condition, seeds)
+    gen = _generator_for_simple_dataframe_with_all_stats(sim_params)
     return pd.concat(gen).reset_index(drop=True)
