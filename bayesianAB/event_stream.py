@@ -18,7 +18,12 @@ ITEMS_PER_CHUNK = 10000
 
 
 class SimulationParamsForOneChunk:
-    def __init__(self, n, M, weights, means, stdevs):
+    """ This is an 'internal' class, which describes there bare minimum
+    needed to compute one 'chunk' of observations. It doesn't know anything
+    about stopping conditions though."""
+
+    @typechecked
+    def __init__(self, n: int, M: int, weights: List[float], means: List[float], stdevs: List[float]):
         self.n = n
         self.M = M
         self.weights = weights
