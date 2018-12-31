@@ -1,4 +1,4 @@
-from typeguard import typechecked, List, Any, Tuple
+from typeguard import typechecked, List, Any, Tuple, Optional
 import numpy as np
 import pandas as pd
 from collections import namedtuple
@@ -204,14 +204,17 @@ def simple_dataframe_with_all_stats(
         means: List[float],
         stdevs: List[float],
         condition: str,
-        seeds: Tuple[int, int] = (1337, 1234),
+        seeds: Tuple[Optional[int], Optional[int]] = (None, None),
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
         'condition' is found. Then concat all rows up to and including
         the first matching row and return the DataFrame
     """
-    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, seeds)
+    # If either 'seeds' value is 'None', replace it with a random value
+    seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
+    seed1 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
+    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, (seed0, seed1))
     return pd.concat(gen).reset_index(drop=True)
 
 @typechecked
