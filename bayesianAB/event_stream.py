@@ -213,6 +213,6 @@ def simple_dataframe_with_all_stats(
     """
     # If either 'seeds' value is 'None', replace it with a random value
     seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
-    seed1 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
+    seed1 = seeds[1] if seeds[1] is not None else np.random.randint(10000)
     gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, (seed0, seed1))
     return pd.concat(gen).reset_index(drop=True)
