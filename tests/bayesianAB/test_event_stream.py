@@ -136,7 +136,10 @@ def test_simple_dataframe_with_all_stats__sample_size():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'total_sample_size >= 15')
+    # In this test, we use 'min_sample_size=0' in order to disable the special
+    # rule that says that every variant must have at least 5 entries. In this
+    # test, 11 controls and 4 treatments is OK
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'total_sample_size >= 15', min_sample_size=0)
     assert df.iloc[-1,]['total_sample_size'] == 15
 
 
