@@ -41,15 +41,11 @@ class SimulationParams:
         assert len(weights) == len(means)
         assert len(weights) == len(stdevs)
 
-        # If either 'seeds' value is 'None', replace it with a random value
-        if seeds is None:
-            seeds = (np.random.randint(10000), np.random.randint(10000))
-
         self.weights = weights
         self.means = means
         self.stdevs = stdevs
         self.stopping_condition = stopping_condition
-        self.seeds = seeds
+        self.raw_seeds = seeds
         self.min_sample_size = min_sample_size
 
 
@@ -230,7 +226,11 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
 
 
 def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams):
-    two_rngs = seeded_RandomStates(sim_params.seeds[0], sim_params.seeds[1])
+    # If either 'seeds' value is 'None', replace it with a random value
+    seeds = sim_params.raw_seeds
+    if seeds is None:
+        seeds = (np.random.randint(10000), np.random.randint(10000))
+    two_rngs = seeded_RandomStates(seeds[0], seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
     adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
