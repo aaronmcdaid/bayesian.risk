@@ -17,8 +17,14 @@ from bayesianAB.risk import risk, risks
 ITEMS_PER_CHUNK = 10000
 
 
-class SimulationParams(namedtuple('SimulationParams', 'n M weights means stdevs')):
-    pass
+class SimulationParams:
+    @typechecked
+    def __init__(self, n, M, weights, means, stdevs):
+        self.n = n
+        self.M = M
+        self.weights = weights
+        self.means = means
+        self.stdevs = stdevs
 
 
 @typechecked
