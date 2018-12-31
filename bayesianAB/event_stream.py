@@ -18,7 +18,6 @@ ITEMS_PER_CHUNK = 10000
 
 
 class SimulationParamsForOneChunk:
-    @typechecked
     def __init__(self, n, M, weights, means, stdevs):
         self.n = n
         self.M = M
