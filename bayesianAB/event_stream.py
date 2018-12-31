@@ -50,6 +50,14 @@ class SimulationParams:
 
 
     @typechecked
+    def get_two_seeded_generators(self) -> Tuple[np.random.RandomState, np.random.RandomState]:
+        seeds = self.raw_seeds
+        if seeds is None:
+            seeds = (np.random.randint(10000), np.random.randint(10000))
+        return seeded_RandomStates(seeds[0], seeds[1])
+
+
+    @typechecked
     def to_SimulationParamsForOneChunk(self) -> 'SimulationParamsForOneChunk':
         return SimulationParamsForOneChunk(
                 n = ITEMS_PER_CHUNK,
@@ -230,7 +238,7 @@ def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams)
     seeds = sim_params.raw_seeds
     if seeds is None:
         seeds = (np.random.randint(10000), np.random.randint(10000))
-    two_rngs = seeded_RandomStates(seeds[0], seeds[1])
+    two_rngs = sim_params.get_two_seeded_generators() #seeded_RandomStates(seeds[0], seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
     adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
