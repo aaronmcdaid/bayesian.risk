@@ -37,8 +37,14 @@ class SimulationParams:
                 seeds: Optional[Tuple[int, int]] = None,
                 min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
             ):
+        # The three lists must be of the same size
         assert len(weights) == len(means)
         assert len(weights) == len(stdevs)
+
+        # If either 'seeds' value is 'None', replace it with a random value
+        if seeds is None:
+            seeds = (np.random.randint(10000), np.random.randint(10000))
+
         self.weights = weights
         self.means = means
         self.stdevs = stdevs
@@ -244,14 +250,7 @@ def _adjust_condition_for_min_sample_size(stopping_condition: str, min_sample_si
     return stopping_condition
 
 
-def simple_dataframe_with_all_stats(
-        weights: List[float],
-        means: List[float],
-        stdevs: List[float],
-        stopping_condition: str,
-        seeds: Optional[Tuple[int, int]] = None,
-        min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
-        ) -> pd.DataFrame:
+def simple_dataframe_with_all_stats(*l, **kw) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
         'stopping_condition' is found. Then concat all rows up to and including
@@ -261,10 +260,11 @@ def simple_dataframe_with_all_stats(
         'min_sample_size' samples.  The 'min_sample_size' parameter should
         always be at least 2, in order for the variance estimates to be
         reasonable.
+
+        NOTE: The args are simply directly to the constructor for
+        SimulationParams. This allows us to add more parameters
+        without having to edit this function
     """
-    # If either 'seeds' value is 'None', replace it with a random value
-    if seeds is None:
-        seeds = (np.random.randint(10000), np.random.randint(10000))
-    sim_params = SimulationParams(weights, means, stdevs, stopping_condition, seeds=seeds, min_sample_size=min_sample_size)
+    sim_params = SimulationParams(*l, **kw)
     gen = _generator_for_simple_dataframe_with_all_stats(sim_params)
     return pd.concat(gen).reset_index(drop=True)
