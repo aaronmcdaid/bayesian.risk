@@ -1,6 +1,6 @@
 from bayesianAB.event_stream import random_variants, one_column_per_variant, seeded_RandomStates, seeded_RandomState, random_standard_normals, \
         simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns, \
-        SimulationParams, simple_dataframe_with_all_stats
+        SimulationParamsForOneChunk, simple_dataframe_with_all_stats
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -40,7 +40,7 @@ def test_simulate_many_draws_for_many_variants():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    params = SimulationParams(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
     simulated_dataframes = simulate_many_draws_for_many_variants(
             two_rngs,
             params,
@@ -68,7 +68,7 @@ def test_generate_cumulative_dataframes():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    params = SimulationParams(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
 
     dfs= list(it.islice(generate_cumulative_dataframes(
             two_rngs,
@@ -88,7 +88,7 @@ def test_inserting_extra_columns():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    params = SimulationParams(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
 
     g = generate_cumulative_dataframes_with_extra_columns(
             two_rngs,
@@ -111,7 +111,7 @@ def test_inserting_columns_and_correctness():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [3, 3] # must be equal to each other for this test to work
-    params = SimulationParams(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
 
     many_estimates_of_the_difference = []
     many_estimates_of_the_estimatorvariance = []

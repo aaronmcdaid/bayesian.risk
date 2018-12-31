@@ -17,7 +17,7 @@ from bayesianAB.risk import risk, risks
 ITEMS_PER_CHUNK = 10000
 
 
-class SimulationParams:
+class SimulationParamsForOneChunk:
     @typechecked
     def __init__(self, n, M, weights, means, stdevs):
         self.n = n
@@ -76,7 +76,7 @@ class SimulationDataFrames(namedtuple('SimulationDataFrames', 'assignment metric
 @typechecked
 def simulate_many_draws_for_many_variants(
         two_rngs: Tuple[np.random.RandomState, np.random.RandomState],
-        params: SimulationParams,
+        params: SimulationParamsForOneChunk,
         ) -> SimulationDataFrames:
     """
         Returns three dataframes. Each dataframe has 'M' columns, where
@@ -118,7 +118,7 @@ def simulate_many_draws_for_many_variants(
 @typechecked
 def generate_cumulative_dataframes(
         two_rngs: Tuple[np.random.RandomState, np.random.RandomState],
-        params: SimulationParams,
+        params: SimulationParamsForOneChunk,
         ):
     """
         We don't know in advance how many samples we'll need, so this returns
@@ -195,7 +195,7 @@ def _generator_for_simple_dataframe_with_all_stats(
     two_rngs = seeded_RandomStates(seeds[0], seeds[1])
     n = ITEMS_PER_CHUNK
     M = 2
-    params = SimulationParams(n, M, weights, means, stdevs)
+    params = SimulationParamsForOneChunk(n, M, weights, means, stdevs)
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
         matching_indices = df.index[df.eval(condition)].tolist()
         if matching_indices == []:
