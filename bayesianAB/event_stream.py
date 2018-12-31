@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from collections import namedtuple
 from bayesianAB.risk import risk, risks
+from bayesianAB.prior import Prior
 
 """
     Given:
@@ -36,6 +37,7 @@ class SimulationParams:
                 stopping_condition: str,
                 seeds: Optional[Tuple[int, int]] = None,
                 min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
+                prior = Prior.flat_prior(),
             ):
         # The three lists must be of the same size
         assert len(weights) == len(means)
@@ -47,6 +49,7 @@ class SimulationParams:
         self.stopping_condition = stopping_condition
         self.raw_seeds = seeds
         self.min_sample_size = min_sample_size
+        self.prior = prior
 
 
     @typechecked
@@ -201,6 +204,7 @@ def _insert_the_mean_and_variance_columns(df):
 
 
 def _insert_the_ttest_columns(df):
+    # This is where any prior would be applied
     df.eval('difference_of_means = estimated_mean_1 - estimated_mean_0', inplace=True)
     pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
                                   + estimated_variance_1 * (sample_size_1-1) \
@@ -219,7 +223,7 @@ def _insert_the_risk_regret_columns(df):
     df['expected_gain'] = - risks(0, - diffs, stdev_of_estimator)
 
 
-def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
+def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: Prior):
     # Assuming exactly two variants for now, no idea how to extend this!
     for df in generate_cumulative_dataframes(two_rngs, params):
         df = df.copy(deep=False)
@@ -241,7 +245,7 @@ def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams)
     two_rngs = sim_params.get_two_seeded_generators() #seeded_RandomStates(seeds[0], seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
     adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
-    for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
+    for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params, sim_params.prior):
         matching_indices = df.index[df.eval(adjusted_stopping_condition)].tolist()
         if matching_indices == []:
             yield df
