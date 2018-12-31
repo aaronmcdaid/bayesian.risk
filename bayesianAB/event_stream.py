@@ -222,7 +222,7 @@ def simple_dataframe_with_all_stats(
         means: List[float],
         stdevs: List[float],
         condition: str,
-        seeds: Tuple[Optional[int], Optional[int]] = (None, None),
+        seeds: Optional[Tuple[int, int]] = None,
         min_sample_size = 5,
         ) -> pd.DataFrame:
     """
@@ -236,8 +236,8 @@ def simple_dataframe_with_all_stats(
         reasonable.
     """
     # If either 'seeds' value is 'None', replace it with a random value
-    seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
-    seed1 = seeds[1] if seeds[1] is not None else np.random.randint(10000)
+    if seeds is None:
+        seeds = (np.random.randint(10000), np.random.randint(10000))
     condition = _adjust_condition_for_min_sample_size(condition, min_sample_size)
-    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, (seed0, seed1))
+    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, seeds)
     return pd.concat(gen).reset_index(drop=True)
