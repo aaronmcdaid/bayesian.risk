@@ -35,6 +35,7 @@ class SimulationParams:
                 stdevs: List[float],
                 stopping_condition: str,
                 seeds: Optional[Tuple[int, int]] = None,
+                min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
             ):
         assert len(weights) == len(means)
         assert len(weights) == len(stdevs)
@@ -43,6 +44,7 @@ class SimulationParams:
         self.stdevs = stdevs
         self.stopping_condition = stopping_condition
         self.seeds = seeds
+        self.min_sample_size = min_sample_size
 
 
     @typechecked
@@ -224,8 +226,9 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
 def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams):
     two_rngs = seeded_RandomStates(sim_params.seeds[0], sim_params.seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
+    adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
-        matching_indices = df.index[df.eval(sim_params.stopping_condition)].tolist()
+        matching_indices = df.index[df.eval(adjusted_stopping_condition)].tolist()
         if matching_indices == []:
             yield df
         else:
@@ -262,7 +265,6 @@ def simple_dataframe_with_all_stats(
     # If either 'seeds' value is 'None', replace it with a random value
     if seeds is None:
         seeds = (np.random.randint(10000), np.random.randint(10000))
-    stopping_condition = _adjust_condition_for_min_sample_size(stopping_condition, min_sample_size)
-    sim_params = SimulationParams(weights, means, stdevs, stopping_condition, seeds)
+    sim_params = SimulationParams(weights, means, stdevs, stopping_condition, seeds=seeds, min_sample_size=min_sample_size)
     gen = _generator_for_simple_dataframe_with_all_stats(sim_params)
     return pd.concat(gen).reset_index(drop=True)
