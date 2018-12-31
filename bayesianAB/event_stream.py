@@ -260,6 +260,10 @@ def _adjust_condition_for_min_sample_size(stopping_condition: str, min_sample_si
 
 def simple_dataframe_with_all_stats(*l, **kw) -> pd.DataFrame:
     """
+
+            DEPRECATE this? It's a bit redundant. Maybe just call
+            'run_simulation_until_the_end' instead.
+
         Keep generating cumulative dataframes until one row matching
         'stopping_condition' is found. Then concat all rows up to and including
         the first matching row and return the DataFrame
@@ -274,5 +278,22 @@ def simple_dataframe_with_all_stats(*l, **kw) -> pd.DataFrame:
         without having to edit this function
     """
     sim_params = SimulationParams(*l, **kw)
+    return run_simulation_until_the_end(sim_params)
+
+def run_simulation_until_the_end(sim_params: SimulationParams) -> pd.DataFrame:
+    """
+        Keep generating cumulative dataframes until one row matching
+        'stopping_condition' is found. Then concat all rows up to and including
+        the first matching row and return the DataFrame
+
+        Also, this will wait until every variant has at least
+        'min_sample_size' samples.  The 'min_sample_size' parameter should
+        always be at least 2, in order for the variance estimates to be
+        reasonable.
+
+        NOTE: The args are simply directly to the constructor for
+        SimulationParams. This allows us to add more parameters
+        without having to edit this function
+    """
     gen = _generator_for_simple_dataframe_with_all_stats(sim_params)
     return pd.concat(gen).reset_index(drop=True)
