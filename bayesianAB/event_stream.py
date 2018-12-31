@@ -44,11 +44,22 @@ class SimulationParams:
         self.seeds = seeds
 
 
+    @typechecked
+    def to_SimulationParamsForOneChunk(self) -> 'SimulationParamsForOneChunk':
+        return SimulationParamsForOneChunk(
+                n = ITEMS_PER_CHUNK,
+                M = len(self.weights),
+                weights = self.weights,
+                means = self.means,
+                stdevs = self.stdevs,
+                )
+
 class SimulationParamsForOneChunk(namedtuple('SimulationParamsForOneChunk', 'n M weights means stdevs')):
     """ This is an 'internal' class, which describes there bare minimum
     needed to compute one 'chunk' of observations. It doesn't know anything
     about stopping conditions though."""
     pass
+
 
 
 @typechecked
@@ -211,9 +222,7 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
 
 def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams):
     two_rngs = seeded_RandomStates(sim_params.seeds[0], sim_params.seeds[1])
-    n = ITEMS_PER_CHUNK
-    M = 2
-    params = SimulationParamsForOneChunk(n, M, sim_params.weights, sim_params.means, sim_params.stdevs)
+    params = sim_params.to_SimulationParamsForOneChunk()
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params):
         matching_indices = df.index[df.eval(sim_params.stopping_condition)].tolist()
         if matching_indices == []:
