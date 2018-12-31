@@ -184,8 +184,9 @@ def _generator_for_simple_dataframe_with_all_stats(
         means: List[float],
         stdevs: List[float],
         condition: str,
+        seeds: Tuple[int, int],
         ):
-    two_rngs = seeded_RandomStates(1337, 1234)
+    two_rngs = seeded_RandomStates(seeds[0], seeds[1])
     n = ITEMS_PER_CHUNK
     M = 2
     params = SimulationParams(n, M, weights, means, stdevs)
@@ -203,13 +204,14 @@ def simple_dataframe_with_all_stats(
         means: List[float],
         stdevs: List[float],
         condition: str,
+        seeds: Tuple[int, int] = (1337, 1234),
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
         'condition' is found. Then concat all rows up to and including
         the first matching row and return the DataFrame
     """
-    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition)
+    gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, seeds)
     return pd.concat(gen).reset_index(drop=True)
 
 @typechecked
