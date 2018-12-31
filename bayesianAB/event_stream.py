@@ -205,6 +205,7 @@ def simple_dataframe_with_all_stats(
         stdevs: List[float],
         condition: str,
         seeds: Tuple[Optional[int], Optional[int]] = (None, None),
+        min_sample_size = 0,
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
@@ -214,5 +215,7 @@ def simple_dataframe_with_all_stats(
     # If either 'seeds' value is 'None', replace it with a random value
     seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
     seed1 = seeds[1] if seeds[1] is not None else np.random.randint(10000)
+    if min_sample_size > 0:
+        condition = '({condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
     gen = _generator_for_simple_dataframe_with_all_stats(weights, means, stdevs, condition, (seed0, seed1))
     return pd.concat(gen).reset_index(drop=True)

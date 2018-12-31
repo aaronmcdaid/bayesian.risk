@@ -158,3 +158,18 @@ def test_simple_dataframe_with_all_stats__regret():
     df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR))
     assert df['expected_gain'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
     assert df['expected_gain'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
+
+
+def test_simple_dataframe_with_all_stats__min_sample_size():
+    # Test the 'min_sample_size' parameter to 'simple_dataframe_with_all_stats',
+    # which ensures that both variants have at least that many samples, regardless
+    # of any other condition.
+    weights = [0.3, 0.7]
+    means = [3, 5]
+    stdevs = [2, 4]
+    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'True', min_sample_size = 13)
+    last_row = df.iloc[-1,]
+    print(last_row.sample_size_0, last_row.sample_size_1)
+    print(min(last_row.sample_size_0, last_row.sample_size_1))
+    assert min(last_row.sample_size_0, last_row.sample_size_1) == 13
+    #assert df.iloc[-1,]['total_sample_size'] == 15
