@@ -213,12 +213,17 @@ def simple_dataframe_with_all_stats(
         stdevs: List[float],
         condition: str,
         seeds: Tuple[Optional[int], Optional[int]] = (None, None),
-        min_sample_size = 0,
+        min_sample_size = 5,
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
         'condition' is found. Then concat all rows up to and including
         the first matching row and return the DataFrame
+
+        Also, this will wait until every variant has at least
+        'min_sample_size' samples.  The 'min_sample_size' parameter should
+        always be at least 2, in order for the variance estimates to be
+        reasonable.
     """
     # If either 'seeds' value is 'None', replace it with a random value
     seed0 = seeds[0] if seeds[0] is not None else np.random.randint(10000)
