@@ -15,6 +15,7 @@ from bayesianAB.risk import risk, risks
 
 
 ITEMS_PER_CHUNK = 10000
+DEFAULT_MIN_SAMPLE_SIZE = 5 # every variant must have at least this many observations
 
 
 class SimulationParams:
@@ -246,7 +247,7 @@ def simple_dataframe_with_all_stats(
         stdevs: List[float],
         stopping_condition: str,
         seeds: Optional[Tuple[int, int]] = None,
-        min_sample_size = 5,
+        min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
         ) -> pd.DataFrame:
     """
         Keep generating cumulative dataframes until one row matching
