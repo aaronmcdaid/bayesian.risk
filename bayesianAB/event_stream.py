@@ -15,7 +15,7 @@ from bayesianAB.prior import Prior, FlatPrior
 """
 
 
-ITEMS_PER_CHUNK = 100000
+ITEMS_PER_CHUNK = 10000
 DEFAULT_MIN_SAMPLE_SIZE = 5 # every variant must have at least this many observations
 
 
