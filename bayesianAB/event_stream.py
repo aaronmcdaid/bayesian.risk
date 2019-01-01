@@ -253,11 +253,8 @@ def _compute_the_prior_and_insert_the_posterior(df: pd.DataFrame, prior: Prior):
 
 
 def _insert_the_risk_regret_columns(df):
-    # this is equivalent to calling
-    #   risk(0, difference_of_means, sqrt(variance_of_estimator))
-    # for every item
-    diffs = df['difference_of_means']
-    stdev_of_estimator = np.sqrt(df['variance_of_estimator'])
+    diffs = df['posterior_mean']
+    stdev_of_estimator = df['posterior_stdev']
     df['expected_loss'] = risks(0, diffs, stdev_of_estimator)
     df['expected_gain'] = - risks(0, - diffs, stdev_of_estimator)
 

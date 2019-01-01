@@ -8,6 +8,7 @@ from pytest import approx
 def test_very_strong_prior():
     # A very strong prior (small stdev), therefore
     # the posterior will be close to the prior.
+    # (Also, check the expected loss/gain)
     prior = FixedPrior(5, 0.01)
 
     sim_params = SimulationParams(
@@ -22,6 +23,10 @@ def test_very_strong_prior():
     df = run_simulation_until_the_end(sim_params)
     assert df.posterior_mean.iloc[-1] == approx(prior.prior_mean, abs=0.01)
     assert df.posterior_stdev.iloc[-1] == approx(prior.prior_stdev, abs=0.01)
+
+    # Also, the expected_loss and expected_gain will be driven by the prior
+    assert df.expected_loss.iloc[-1] == approx(0)
+    assert df.expected_gain.iloc[-1] == approx(prior.prior_mean, abs=0.01)
 
 
 def test_very_weak_prior():
