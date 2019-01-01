@@ -203,18 +203,13 @@ def _insert_the_mean_and_variance_columns(df):
         df.eval('estimated_variance_{} = sumOfSquares_{} / sample_size_{} - estimated_mean_{} ** 2'.format(j, j, j, j), inplace=True)
 
 
-def _insert_the_ttest_columns_with_prior(df, prior: Prior):
+def _insert_the_ttest_columns(df):
     """
-        This is where any prior would be applied
-
-        Three steps:
-        1. compute the likelihood function
-        2. compute the prior
-        3. apply the prior, by adjusting the two fields
+        This basically is the 'likelihood', just the estimate of the mean
+        and the variance of that estimate.
+        Later, this likelihood will be combined with the prior
+        to compute the posterior.
     """
-
-    # compute the likelihood in 'difference_of_means' and
-    # 'variance_of_estimator'
     difference_of_means = df.eval('estimated_mean_1 - estimated_mean_0')
     pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
                                   + estimated_variance_1 * (sample_size_1-1) \
@@ -224,6 +219,8 @@ def _insert_the_ttest_columns_with_prior(df, prior: Prior):
 
     df['difference_of_means'] = difference_of_means
     df['variance_of_estimator'] = variance_of_estimator
+
+def _compute_the_prior_and_insert_the_posterior(df: pd.DataFrame, prior: Prior):
 
     # Compute the prior
     prior_mean, prior_stdev = prior.compute_prior(df)
@@ -243,10 +240,10 @@ def _insert_the_ttest_columns_with_prior(df, prior: Prior):
 
     # Compute the precisions:
     prior_precision = 1/(prior_stdev**2)
-    likelihood_precision = 1/variance_of_estimator
+    likelihood_precision = 1/df.variance_of_estimator
     posterior_precision = prior_precision + likelihood_precision
 
-    posterior_mean_numerator = difference_of_means * likelihood_precision + prior_mean * prior_precision
+    posterior_mean_numerator = df.difference_of_means * likelihood_precision + prior_mean * prior_precision
     posterior_mean_denominator = likelihood_precision + prior_precision
     posterior_mean = posterior_mean_numerator / posterior_mean_denominator
 
@@ -275,7 +272,8 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: P
         assert 'sample_size_2' not in df.columns
         df.eval('total_sample_size = sample_size_0 + sample_size_1', inplace=True)
         _insert_the_mean_and_variance_columns(df)
-        _insert_the_ttest_columns_with_prior(df, prior)
+        _insert_the_ttest_columns(df)
+        _compute_the_prior_and_insert_the_posterior(df, prior)
         _insert_the_risk_regret_columns(df)
         yield df
 
