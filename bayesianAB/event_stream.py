@@ -222,17 +222,37 @@ def _insert_the_ttest_columns(df, prior: Prior):
             """)
     variance_of_estimator = df.eval('@pooled_variance * (1/sample_size_0 + 1/sample_size_1)')
 
+    df['difference_of_means'] = difference_of_means
+    df['variance_of_estimator'] = variance_of_estimator
+
     # Compute the prior
     prior_mean, prior_stdev = prior.compute_prior(df)
-    assert prior_mean == 0
-    assert np.isinf(prior_stdev)
 
 
     # Apply the prior
+    # ===============
+    #
+    # Remember, the 'precision' is the reciprocal of the variance:
+    #    https://en.wikipedia.org/wiki/Precision_(statistics)
+    # In the Gaussian conjugate prior, the posterior precision is the sum of
+    # the prior precision and the likelihood precision. And the posterior
+    # mean is a weighted average (weighted by precision) of the prior mean
+    # and the likelihood mean.
+    # See 'Normal with known precision τ' here:
+    #    https://en.wikipedia.org/wiki/Conjugate_prior#Continuous_distributions
+
+    # Compute the precisions:
+    prior_precision = 1/(prior_stdev**2)
+    likelihood_precision = 1/variance_of_estimator
+    posterior_precision = prior_precision + likelihood_precision
+
+    posterior_mean_numerator = difference_of_means * likelihood_precision + prior_mean * prior_precision
+    posterior_mean_denominator = likelihood_precision + prior_precision
+    posterior_mean = posterior_mean_numerator / posterior_mean_denominator
 
     # Store the posterior
-    df['difference_of_means'] = difference_of_means
-    df['variance_of_estimator'] = variance_of_estimator
+    df['posterior_mean'] = posterior_mean
+    df['posterior_stdev'] = np.sqrt(1/posterior_precision)
 
 
 def _insert_the_risk_regret_columns(df):
