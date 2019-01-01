@@ -205,15 +205,16 @@ def _insert_the_mean_and_variance_columns(df):
 
 def _insert_the_ttest_columns(df, prior: Prior):
     # This is where any prior would be applied
-    prior_mean, prior_stdev = prior.compute_prior(df)
-    assert prior_mean == 0
-    assert np.isinf(prior_stdev)
     df.eval('difference_of_means = estimated_mean_1 - estimated_mean_0', inplace=True)
     pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
                                   + estimated_variance_1 * (sample_size_1-1) \
                                  ) / (sample_size_0 + sample_size_1 - 2)
             """)
     df.eval('variance_of_estimator = @pooled_variance * (1/sample_size_0 + 1/sample_size_1)', inplace=True)
+
+    prior_mean, prior_stdev = prior.compute_prior(df)
+    assert prior_mean == 0
+    assert np.isinf(prior_stdev)
 
 
 def _insert_the_risk_regret_columns(df):
