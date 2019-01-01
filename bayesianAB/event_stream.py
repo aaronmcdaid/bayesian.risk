@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from collections import namedtuple
 from bayesianAB.risk import risk, risks
-from bayesianAB.prior import Prior
+from bayesianAB.prior import Prior, FlatPrior
 
 """
     Given:
@@ -37,7 +37,7 @@ class SimulationParams:
                 stopping_condition: str,
                 seeds: Optional[Tuple[int, int]] = None,
                 min_sample_size = DEFAULT_MIN_SAMPLE_SIZE,
-                prior = Prior.get_flat_prior(),
+                prior = FlatPrior(),
             ):
         # The three lists must be of the same size
         assert len(weights) == len(means)
@@ -205,8 +205,9 @@ def _insert_the_mean_and_variance_columns(df):
 
 def _insert_the_ttest_columns(df, prior: Prior):
     # This is where any prior would be applied
-    assert prior.prior_mean == 0
-    assert np.isinf(prior.prior_stdev)
+    prior_mean, prior_stdev = prior.compute_prior(df)
+    assert prior_mean == 0
+    assert np.isinf(prior_stdev)
     df.eval('difference_of_means = estimated_mean_1 - estimated_mean_0', inplace=True)
     pooled_variance = df.eval("""(  estimated_variance_0 * (sample_size_0-1) \
                                   + estimated_variance_1 * (sample_size_1-1) \
@@ -225,6 +226,7 @@ def _insert_the_risk_regret_columns(df):
     df['expected_gain'] = - risks(0, - diffs, stdev_of_estimator)
 
 
+@typechecked
 def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: Prior):
     # Assuming exactly two variants for now, no idea how to extend this!
     for df in generate_cumulative_dataframes(two_rngs, params):
