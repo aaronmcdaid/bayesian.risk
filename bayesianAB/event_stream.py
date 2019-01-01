@@ -203,7 +203,7 @@ def _insert_the_mean_and_variance_columns(df):
         df.eval('estimated_variance_{} = sumOfSquares_{} / sample_size_{} - estimated_mean_{} ** 2'.format(j, j, j, j), inplace=True)
 
 
-def _insert_the_ttest_columns(df, prior: Prior):
+def _insert_the_ttest_columns_with_prior(df, prior: Prior):
     """
         This is where any prior would be applied
 
@@ -275,7 +275,7 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: P
         assert 'sample_size_2' not in df.columns
         df.eval('total_sample_size = sample_size_0 + sample_size_1', inplace=True)
         _insert_the_mean_and_variance_columns(df)
-        _insert_the_ttest_columns(df, prior)
+        _insert_the_ttest_columns_with_prior(df, prior)
         _insert_the_risk_regret_columns(df)
         yield df
 
