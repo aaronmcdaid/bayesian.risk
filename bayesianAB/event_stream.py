@@ -275,7 +275,7 @@ def generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior: P
         yield df
 
 
-def _generator_for_simple_dataframe_with_all_stats(sim_params: SimulationParams):
+def _generator_for_one_simulation_until_stopping_condition(sim_params: SimulationParams):
     # If either 'seeds' value is 'None', replace it with a random value
     seeds = sim_params.raw_seeds
     if seeds is None:
@@ -301,7 +301,7 @@ def _adjust_condition_for_min_sample_size(stopping_condition: str, min_sample_si
     return stopping_condition
 
 
-def simple_dataframe_with_all_stats(*l, **kw) -> pd.DataFrame:
+def one_simulation_until_stopping_condition(*l, **kw) -> pd.DataFrame:
     """
 
             DEPRECATE this? It's a bit redundant. Maybe just call
@@ -338,5 +338,5 @@ def run_simulation_until_the_end(sim_params: SimulationParams) -> pd.DataFrame:
         SimulationParams. This allows us to add more parameters
         without having to edit this function
     """
-    gen = _generator_for_simple_dataframe_with_all_stats(sim_params)
+    gen = _generator_for_one_simulation_until_stopping_condition(sim_params)
     return pd.concat(gen).reset_index(drop=True)

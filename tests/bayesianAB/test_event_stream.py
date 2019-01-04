@@ -1,6 +1,6 @@
 from bayesianAB.event_stream import random_variants, one_column_per_variant, seeded_RandomStates, seeded_RandomState, random_standard_normals, \
         simulate_many_draws_for_many_variants, generate_cumulative_dataframes, generate_cumulative_dataframes_with_extra_columns, \
-        SimulationParamsForOneChunk, simple_dataframe_with_all_stats
+        SimulationParamsForOneChunk, one_simulation_until_stopping_condition
 import itertools as it
 import numpy as np
 import pandas as pd
@@ -135,46 +135,46 @@ def test_inserting_columns_and_correctness():
     assert variance_of_many_means == approx(central_variance, abs=0.02)
 
 
-def test_simple_dataframe_with_all_stats__sample_size():
+def test_one_simulation_until_stopping_condition__sample_size():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
     # In this test, we use 'min_sample_size=0' in order to disable the special
     # rule that says that every variant must have at least 5 entries. In this
     # test, 11 controls and 4 treatments is OK
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'total_sample_size >= 15', min_sample_size=0)
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'total_sample_size >= 15', min_sample_size=0)
     assert df.iloc[-1,]['total_sample_size'] == 15
 
 
-def test_simple_dataframe_with_all_stats__risk():
+def test_one_simulation_until_stopping_condition__risk():
     weights = [0.3, 0.7]
     means = [3, 4]
     stdevs = [2, 4]
     RISK_THRESHOLD_TO_WAIT_FOR = -0.01
     # fixed seeds are needed here, or else sometimes the second assert fails
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_loss >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'expected_loss >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
     assert df['expected_loss'].iloc[-1] >= RISK_THRESHOLD_TO_WAIT_FOR
     assert df['expected_loss'].iloc[-2] <  RISK_THRESHOLD_TO_WAIT_FOR
 
 
-def test_simple_dataframe_with_all_stats__regret():
+def test_one_simulation_until_stopping_condition__regret():
     weights = [0.3, 0.7]
     means = [4, 3]
     stdevs = [2, 4]
     REGRET_THRESHOLD_TO_WAIT_FOR = 0.0001
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
     # fixed seeds are needed here, or else sometimes the second assert fails
     assert df['expected_gain'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
     assert df['expected_gain'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
 
 
-def test_simple_dataframe_with_all_stats__min_sample_size():
-    # Test the 'min_sample_size' parameter to 'simple_dataframe_with_all_stats',
+def test_one_simulation_until_stopping_condition__min_sample_size():
+    # Test the 'min_sample_size' parameter to 'one_simulation_until_stopping_condition',
     # which ensures that both variants have at least that many samples, regardless
     # of any other condition.
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    df = simple_dataframe_with_all_stats(weights, means, stdevs, 'True', min_sample_size = 13)
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'True', min_sample_size = 13)
     last_row = df.iloc[-1,]
     assert min(last_row.sample_size_0, last_row.sample_size_1) == 13
