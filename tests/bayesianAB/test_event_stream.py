@@ -146,6 +146,25 @@ def test_one_simulation_until_stopping_condition__sample_size():
     assert df.iloc[-1,]['total_sample_size'] == 15
 
 
+def test_one_simulation_until_stopping_condition__min_sample_size():
+    """
+        The min_sample_size means the early rows should be skipped entirely.
+        So in this test we check that the first row has the minimum number of
+        samples
+    """
+    weights = [0.3, 0.7]
+    means = [3, 5]
+    stdevs = [2, 4]
+    MIN_SAMPLE_SIZE=4
+    # In this test, we use 'min_sample_size=0' in order to disable the special
+    # rule that says that every variant must have at least 5 entries. In this
+    # test, 11 controls and 4 treatments is OK
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'total_sample_size >= 100', min_sample_size=MIN_SAMPLE_SIZE)
+    smsz0, smsz1 = df.iloc[0,][['sample_size_0', 'sample_size_1']]
+    print(smsz0, smsz1)
+    assert min(smsz0, smsz1) == MIN_SAMPLE_SIZE
+
+
 def test_one_simulation_until_stopping_condition__risk():
     weights = [0.3, 0.7]
     means = [3, 4]
