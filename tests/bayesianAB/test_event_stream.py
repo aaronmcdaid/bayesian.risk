@@ -194,6 +194,6 @@ def test_one_simulation_until_stopping_condition__min_sample_size():
     weights = [0.3, 0.7]
     means = [3, 5]
     stdevs = [2, 4]
-    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'True', min_sample_size = 13)
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'total_sample_size >= 0', min_sample_size = 13)
     last_row = df.iloc[-1,]
     assert min(last_row.sample_size_0, last_row.sample_size_1) == 13
