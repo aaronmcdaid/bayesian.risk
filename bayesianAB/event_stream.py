@@ -287,12 +287,25 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior):
         df = df.query('sample_size_0 >= @sim_params.min_sample_size')
         df = df.query('sample_size_1 >= @sim_params.min_sample_size')
-        df = df.reset_index(drop=True)
-        matching_indices = df.index[df.eval(adjusted_stopping_condition)].tolist()
-        if matching_indices == []:
+
+        # At this stage, we don't trust the index of the dataframe.
+        # We want to find the *offsets*, not the indices, of the rows
+        # that match the stopping condition.
+
+        # First, a boolean vector corresponding to the stopping condition
+        e = df.eval(adjusted_stopping_condition)
+
+        # Then, a form of the index counting from 0
+        index_as_offsets = df.reset_index(drop=True).index
+
+        # Finally, we have the *offsets* of the rows that match the
+        # stopping condition:
+        matching_offsets = index_as_offsets[e].tolist()
+
+        if matching_offsets == []:
             yield df
         else:
-            first_matching_index = matching_indices[0]
+            first_matching_index = matching_offsets[0]
             yield df.iloc[0:first_matching_index+1,]
             break
 
