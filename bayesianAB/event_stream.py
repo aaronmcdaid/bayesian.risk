@@ -282,7 +282,6 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
         seeds = (np.random.randint(10000), np.random.randint(10000))
     two_rngs = sim_params.get_two_seeded_generators() #seeded_RandomStates(seeds[0], seeds[1])
     params = sim_params.to_SimulationParamsForOneChunk()
-    adjusted_stopping_condition = _adjust_condition_for_min_sample_size(sim_params.stopping_condition, sim_params.min_sample_size)
     prior = sim_params.prior
     for df in generate_cumulative_dataframes_with_extra_columns(two_rngs, params, prior):
         df = df.query('sample_size_0 >= @sim_params.min_sample_size')
@@ -293,7 +292,7 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
         # that match the stopping condition.
 
         # First, a boolean vector corresponding to the stopping condition
-        e = df.eval(adjusted_stopping_condition)
+        e = df.eval(sim_params.stopping_condition)
         assert isinstance(e, pd.Series)
 
         # Then, a form of the index counting from 0
@@ -311,13 +310,6 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
             first_matching_offset = matching_offsets[0]
             yield df.iloc[0:first_matching_offset+1,]
             break
-
-
-@typechecked
-def _adjust_condition_for_min_sample_size(stopping_condition: str, min_sample_size: int) -> str:
-    if min_sample_size > 0:
-        stopping_condition = '({stopping_condition}) & sample_size_0 >= {min_sample_size} & sample_size_1 >= {min_sample_size}'.format(**locals())
-    return stopping_condition
 
 
 def one_simulation_until_stopping_condition(*l, **kw) -> pd.DataFrame:
