@@ -294,6 +294,7 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
 
         # First, a boolean vector corresponding to the stopping condition
         e = df.eval(adjusted_stopping_condition)
+        assert isinstance(e, pd.Series)
 
         # Then, a form of the index counting from 0
         index_as_offsets = df.reset_index(drop=True).index
