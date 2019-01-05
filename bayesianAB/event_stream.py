@@ -305,8 +305,10 @@ def _generator_for_one_simulation_until_stopping_condition(sim_params: Simulatio
         if matching_offsets == []:
             yield df
         else:
-            first_matching_index = matching_offsets[0]
-            yield df.iloc[0:first_matching_index+1,]
+            # There is at least one matching row. So we 'yield' everything up
+            # to and including the first matching row, then 'break'
+            first_matching_offset = matching_offsets[0]
+            yield df.iloc[0:first_matching_offset+1,]
             break
 
 
