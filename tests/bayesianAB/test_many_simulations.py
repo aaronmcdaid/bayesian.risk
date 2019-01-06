@@ -1,5 +1,5 @@
 from bayesianAB.many_simulations import \
-    many_simulations_to_the_stopping_condition, get_one_row_per_simulation
+    many_simulations_to_the_stopping_condition, get_one_row_per_simulation, many_sims_many_stopping_conditions
 
 
 def test_many_simulations_to_the_stopping_condition__seeded():
@@ -45,3 +45,32 @@ def test_many_simulations_to_the_stopping_condition__stricter_stopping():
     # be shorter (or, very rarely, the same length).
     assert (new_sample_sizes <= orig_sample_sizes).all()
     assert new_sample_sizes.sum() < orig_sample_sizes.sum()
+
+
+def test_many_sims_many_stopping_conditions():
+    stopping_conditions = ['EL >= -0.01', 'EL >= -0.1', 'EL >= -0.3']
+    strictest_stopping_condition = stopping_conditions[0]
+    other_stopping_conditions = stopping_conditions[1:]
+    RUNS = 10
+
+    df = many_sims_many_stopping_conditions(
+            RUNS,
+            stopping_conditions = stopping_conditions,
+            seed = 1337,
+            )(
+            min_sample_size = 10,
+            means = [7, 7],
+            stdevs = [1,1],
+            weights = [0.5, 0.5],
+            )
+    # For each run, and each stopping_condition, there should be exactly one row
+    assert df.shape[0] == RUNS * len(stopping_conditions)
+
+    # The first stopping_condition is the strictest, therefore it should have
+    # the largest sample sizes
+    strictest_set = df.query('stopping_condition == @strictest_stopping_condition')
+    for one_stopping_condition in other_stopping_conditions:
+        one_set = df.query('stopping_condition == @one_stopping_condition')
+        assert one_set.shape[0] == RUNS
+        assert (one_set.total_sample_size.values <= strictest_set.total_sample_size.values).all()
+        assert sum(one_set.total_sample_size.values) < sum(strictest_set.total_sample_size.values)

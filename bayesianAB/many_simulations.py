@@ -1,4 +1,4 @@
-from typeguard import typechecked, Optional
+from typeguard import typechecked, Optional, List
 from bayesianAB.event_stream import one_simulation_until_stopping_condition
 import pandas as pd
 
@@ -67,3 +67,46 @@ def get_one_row_per_simulation(df: pd.DataFrame, new_stopping_condition: Optiona
     assert res['run'].nunique() == df['run'].nunique()
 
     return res
+
+@typechecked
+def _one_simulation_many_stopping_conditions(
+        run: int,
+        stopping_conditions: List[str],
+        trace: bool,
+        **kw):
+    if trace: print(run, end=' ')
+    strictest_stopping_condition = stopping_conditions[0]
+    sim = one_simulation_until_stopping_condition(
+            stopping_condition = strictest_stopping_condition,
+            **kw)
+
+    one_row_per_stopping_condition = []
+    for stop in stopping_conditions:
+        x = sim.query(stop).head(1)
+        assert x.shape[0] == 1, stopping_conditions # otherwise, the first condition isn't the strictest?
+        x.insert(0, 'run', run)
+        x.insert(0, 'stopping_condition', stop)
+        one_row_per_stopping_condition.append(x)
+    return pd.concat(one_row_per_stopping_condition)
+
+@typechecked
+def many_sims_many_stopping_conditions(
+        runs: int,
+        stopping_conditions: List[str],
+        trace: bool = False,
+        seed: Optional[int] = None,
+        ):
+    # the conditions should be unique
+    assert len(stopping_conditions) == len(set(stopping_conditions))
+    def _curried(**kw):
+        many_runs = [_one_simulation_many_stopping_conditions(
+                        run = run,
+                        stopping_conditions = stopping_conditions,
+                        trace = trace,
+                        seeds = None if seed is None else (seed + 2*run, seed + 2*run +1),
+                        **kw,
+                        )
+                    for run in range(runs)]
+        if trace: print()
+        return pd.concat(many_runs).reset_index(drop=True)
+    return _curried
