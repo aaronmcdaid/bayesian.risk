@@ -42,3 +42,24 @@ def many_simulations_to_the_stopping_condition(runs: int, trace: bool = False, s
         if trace: print()
         return pd.concat(many_runs).reset_index(drop=True)
     return _curried
+
+@typechecked
+def get_one_row_per_simulation(df: pd.DataFrame, new_stopping_condition: Optional[str] = None):
+    """
+    Given a dataframe like that from 'many_simulations_to_the_stopping_condition',
+    return one row per 'run'.
+
+    By default, we return the last row for each simulation, as that is the first
+    row that satisfied the original stopping condition.
+
+    However, if 'new_stopping_condition' is not None, then we retun the first
+    row from each run that satisfies the 'new_stopping_condition'.
+
+    NOTE: The assumption is that the 'new_stopping_condition' is stricter than the
+    original stopping condition. In other words that there will be at least one
+    row per 'run' that satisfies the 'new_stopping_condition'.
+    """
+    if new_stopping_condition is None:
+        return df.groupby('run').tail(1)
+    else:
+        return df.query(new_stopping_condition).groupby('run').head(1)
