@@ -171,9 +171,9 @@ def test_one_simulation_until_stopping_condition__risk():
     stdevs = [2, 4]
     RISK_THRESHOLD_TO_WAIT_FOR = -0.01
     # fixed seeds are needed here, or else sometimes the second assert fails
-    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'expected_loss >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
-    assert df['expected_loss'].iloc[-1] >= RISK_THRESHOLD_TO_WAIT_FOR
-    assert df['expected_loss'].iloc[-2] <  RISK_THRESHOLD_TO_WAIT_FOR
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'EL >= {}'.format(RISK_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
+    assert df['EL'].iloc[-1] >= RISK_THRESHOLD_TO_WAIT_FOR
+    assert df['EL'].iloc[-2] <  RISK_THRESHOLD_TO_WAIT_FOR
 
 
 def test_one_simulation_until_stopping_condition__regret():
@@ -181,10 +181,10 @@ def test_one_simulation_until_stopping_condition__regret():
     means = [4, 3]
     stdevs = [2, 4]
     REGRET_THRESHOLD_TO_WAIT_FOR = 0.0001
-    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'expected_gain <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
+    df = one_simulation_until_stopping_condition(weights, means, stdevs, 'EG <= {}'.format(REGRET_THRESHOLD_TO_WAIT_FOR), seeds=(1,2))
     # fixed seeds are needed here, or else sometimes the second assert fails
-    assert df['expected_gain'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
-    assert df['expected_gain'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
+    assert df['EG'].iloc[-1] <= REGRET_THRESHOLD_TO_WAIT_FOR
+    assert df['EG'].iloc[-2] >  REGRET_THRESHOLD_TO_WAIT_FOR
 
 
 def test_one_simulation_until_stopping_condition__min_sample_size():

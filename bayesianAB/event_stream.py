@@ -255,8 +255,8 @@ def _compute_the_prior_and_insert_the_posterior(df: pd.DataFrame, prior: Prior):
 def _insert_the_risk_regret_columns(df):
     diffs = df['posterior_mean']
     stdev_of_estimator = df['posterior_stdev']
-    df['expected_loss'] = risks(0, diffs, stdev_of_estimator)
-    df['expected_gain'] = - risks(0, - diffs, stdev_of_estimator)
+    df['EL'] = risks(0, diffs, stdev_of_estimator)
+    df['EG'] = - risks(0, - diffs, stdev_of_estimator)
 
 
 @typechecked

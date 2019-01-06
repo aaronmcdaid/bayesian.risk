@@ -24,9 +24,9 @@ def test_very_strong_prior():
     assert df.posterior_mean.iloc[-1] == approx(prior.prior_mean, abs=0.01)
     assert df.posterior_stdev.iloc[-1] == approx(prior.prior_stdev, abs=0.01)
 
-    # Also, the expected_loss and expected_gain will be driven by the prior
-    assert df.expected_loss.iloc[-1] == approx(0)
-    assert df.expected_gain.iloc[-1] == approx(prior.prior_mean, abs=0.01)
+    # Also, the Expected Loss (EL) and Expected Gain will be driven by the prior
+    assert df.EL.iloc[-1] == approx(0)
+    assert df.EG.iloc[-1] == approx(prior.prior_mean, abs=0.01)
 
 
 def test_very_weak_prior():
