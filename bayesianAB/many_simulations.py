@@ -60,6 +60,10 @@ def get_one_row_per_simulation(df: pd.DataFrame, new_stopping_condition: Optiona
     row per 'run' that satisfies the 'new_stopping_condition'.
     """
     if new_stopping_condition is None:
-        return df.groupby('run').tail(1)
+        res = df.groupby('run').tail(1)
     else:
-        return df.query(new_stopping_condition).groupby('run').head(1)
+        res = df.query(new_stopping_condition).groupby('run').head(1)
+
+    assert res['run'].nunique() == df['run'].nunique()
+
+    return res
