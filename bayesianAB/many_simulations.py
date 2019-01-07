@@ -74,11 +74,11 @@ def _one_simulation_many_stopping_conditions(
         stopping_conditions: List[str],
         trace: bool,
         **kw):
-    if trace: print(run, end=' ')
     strictest_stopping_condition = stopping_conditions[0]
     sim = one_simulation_until_stopping_condition(
             stopping_condition = strictest_stopping_condition,
             **kw)
+    if trace: print('{}({})'.format(run, sim.shape[0]), end=' ')
 
     one_row_per_stopping_condition = []
     for stop in stopping_conditions:
