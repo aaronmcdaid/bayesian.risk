@@ -1,5 +1,5 @@
 from typeguard import typechecked
-from bayesianAB.core_standard_risk import fast_standard_risk, fast_standard_risks
+from bayesianAB.core_standard_risk import fast_standard_risk, fast_standard_risks, standard_risk
 import numpy as np
 
 
@@ -12,6 +12,18 @@ def risk(x: float, loc: float = 0, scale: float = 1) -> float:
             mean(min(Y,x))
     """
     return loc + scale * fast_standard_risk((x - loc) / scale)
+
+
+@typechecked
+def slow_risk(x: float, loc: float = 0, scale: float = 1) -> float:
+    # Doh! I haven't got a test for this yet
+    """
+        given a standard normal,
+            Y ~ N(loc,scale^2)
+        this returns
+            mean(min(Y,x))
+    """
+    return loc + scale * standard_risk((x - loc) / scale)
 
 
 @typechecked
