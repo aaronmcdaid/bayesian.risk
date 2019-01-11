@@ -16,7 +16,6 @@ def risk(x: float, loc: float = 0, scale: float = 1) -> float:
 
 @typechecked
 def slow_risk(x: float, loc: float = 0, scale: float = 1) -> float:
-    # Doh! I haven't got a test for this yet
     """
         given a standard normal,
             Y ~ N(loc,scale^2)
@@ -24,7 +23,7 @@ def slow_risk(x: float, loc: float = 0, scale: float = 1) -> float:
             mean(min(Y,x))
     """
     return loc + scale * standard_risk((x - loc) / scale)
-   
+
 
 @typechecked
 def risks(x: np.array, loc: np.array = 0.0, scale: np.array = 1.0) -> np.array:
