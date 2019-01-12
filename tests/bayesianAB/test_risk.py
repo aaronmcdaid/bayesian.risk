@@ -1,6 +1,6 @@
 import pytest
 from pytest import approx
-from bayesianAB.risk import risk, risks
+from bayesianAB.risk import risk, risks, slow_risk
 import numpy as np
 
 
@@ -43,3 +43,4 @@ def test_risks():
     rs = risks(xs, locs, scales)
     for (x, loc, scale, r) in zip(xs, locs, scales, rs):
         assert risk(x, loc, scale) == approx(r, abs=1e-3)
+        assert slow_risk(x, loc, scale) == approx(r, abs=1e-3)
